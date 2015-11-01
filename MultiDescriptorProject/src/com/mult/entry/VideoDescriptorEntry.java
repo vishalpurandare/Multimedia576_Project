@@ -15,7 +15,7 @@ public class VideoDescriptorEntry {
 		File[] directoryListing = dirVideo.listFiles();
 		
 		//currently only working on one video file, later do it for all files in directoryListings
-		File currFile = directoryListing[6];
+		File currFile = directoryListing[0];
 		
 		MotionDescriptor mObj = MotionDescriptor.getInstance();
 		try {

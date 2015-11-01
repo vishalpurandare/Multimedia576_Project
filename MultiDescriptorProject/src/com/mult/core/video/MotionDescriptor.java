@@ -52,7 +52,7 @@ public class MotionDescriptor {
 		InputStream videoIS = new FileInputStream(videoFile);
 		long len = videoFile.length();
 
-		Utilities.trace("" + len);
+		Utilities.trace("Length of file: " + len);
 
 		byte[] bytes = new byte[(int) len];
 		int offset = 0;
@@ -79,7 +79,8 @@ public class MotionDescriptor {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		int ind = 0;
-		for (int i = 0; i < Constants.NO_OF_FRAMES; i++) {
+		
+		while ((ind + Constants.HEIGHT * Constants.WIDTH * 2) < len) {
 			for (int y = 0; y < Constants.HEIGHT; y++) {
 				for (int x = 0; x < Constants.WIDTH; x++) {
 
@@ -94,11 +95,11 @@ public class MotionDescriptor {
 					ind++;
 				}
 			}
-			
 			SwingUtilities.updateComponentTreeUI(frame);
-			Thread.sleep(20);
+			//Thread.sleep(10);
 		}
-
+		
+		Utilities.trace("Final Idx " + (ind + Constants.HEIGHT * Constants.WIDTH * 2));
 		videoIS.close();
 		Utilities.trace("generateVideoFrames END");
 	}
