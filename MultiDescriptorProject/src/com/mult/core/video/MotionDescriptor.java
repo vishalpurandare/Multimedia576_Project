@@ -79,8 +79,9 @@ public class MotionDescriptor {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		int ind = 0;
-		int cnt = 0;
-		while ((ind + Constants.HEIGHT * Constants.WIDTH * 2) < 19440000) {
+		int cntFrames = 0;
+		
+		while (cntFrames < Constants.NO_OF_FRAMES) {
 			for (int y = 0; y < Constants.HEIGHT; y++) {
 				for (int x = 0; x < Constants.WIDTH; x++) {
 
@@ -97,11 +98,11 @@ public class MotionDescriptor {
 			}
 			ind = ind + (Constants.HEIGHT * Constants.WIDTH * 2);
 			SwingUtilities.updateComponentTreeUI(frame);
-			Thread.sleep(10);
-			cnt++;
+			Thread.sleep(100);
+			cntFrames++;
 		}
 		
-		Utilities.trace("Final Count " + cnt + " idx " +ind);
+		Utilities.trace("Final Count " + cntFrames + " idx " + ind);
 		videoIS.close();
 		Utilities.trace("generateVideoFrames END");
 	}
