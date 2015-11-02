@@ -5,6 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -43,20 +47,24 @@ public class MotionDescriptor {
 	 * Processes Video Frame by Frame
 	 * 
 	 * @param videoPath
+	 * @return
 	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	public void generateVideoFrames(File videoFile) throws IOException, InterruptedException {
+	public List<int[]> generateVideoFrames(File videoFile) throws IOException,
+			InterruptedException {
 		Utilities.trace("generateVideoFrames START");
 
 		InputStream videoIS = new FileInputStream(videoFile);
 		long len = videoFile.length();
-
 		Utilities.trace("Length of file: " + len);
 
 		byte[] bytes = new byte[(int) len];
 		int offset = 0;
 		int numRead = 0;
+		// List of all the frames with array as value, the array will contain
+		// all the components (R,G,B) values as for single image
+		List<int[]> framesComponents = new ArrayList<int[]>();
 
 		// Reading the number of bytes into the array bytes
 		while (offset < bytes.length
@@ -65,6 +73,7 @@ public class MotionDescriptor {
 			offset += numRead;
 		}
 
+		// Test Image Display code
 		BufferedImage img = new BufferedImage(Constants.WIDTH,
 				Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
@@ -74,20 +83,84 @@ public class MotionDescriptor {
 		JFrame frame = new JFrame("Test");
 		frame.getContentPane().add(panel);
 		frame.pack();
-		frame.setLocation(300, 300);
+		frame.setLocation(300, 200);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		int ind = 0;
 		int cntFrames = 0;
-		
+		int[] componentArray = null;
+
+		// Loop for number of frames (150 in our case)
 		while (cntFrames < Constants.NO_OF_FRAMES) {
+			// Generate Each Frame
+			componentArray = new int[(int) Constants.HEIGHT * Constants.WIDTH * 3];
+			int idx = 0;
 			for (int y = 0; y < Constants.HEIGHT; y++) {
 				for (int x = 0; x < Constants.WIDTH; x++) {
-
 					int r = bytes[ind];
 					int g = bytes[ind + Constants.HEIGHT * Constants.WIDTH];
 					int b = bytes[ind + Constants.HEIGHT * Constants.WIDTH * 2];
+
+					int pix = 0xff000000 | ((r & 0xff) << 16)
+							| ((g & 0xff) << 8) | (b & 0xff);
+
+					int rCmp = ((pix >> 16) & 0xff);
+					int gCmp = ((pix >> 8) & 0xff);
+					int bCmp = ((pix) & 0xff);
+
+					componentArray[idx] = rCmp;
+					componentArray[idx + Constants.HEIGHT * Constants.WIDTH] = gCmp;
+					componentArray[idx + Constants.HEIGHT * Constants.WIDTH * 2] = bCmp;
+
+					img.setRGB(x, y, pix);
+					ind++;
+					idx++;
+				}
+			}
+
+			framesComponents.add(componentArray);
+			ind = ind + (Constants.HEIGHT * Constants.WIDTH * 2);
+			SwingUtilities.updateComponentTreeUI(frame);
+			Thread.sleep(10);
+			cntFrames++;
+		}
+
+		// call to test code
+		testBlocks(framesComponents, img, frame);
+		Utilities.trace("Final Count " + framesComponents.size() + " idx "
+				+ ind);
+
+		videoIS.close();
+		Utilities.trace("generateVideoFrames END");
+
+		return framesComponents;
+	}
+
+	// test code
+	private void testBlocks(List<int[]> framesComponents, BufferedImage img,
+			JFrame frame) throws InterruptedException {
+		// test code ---> START
+
+		Thread.sleep(5000);
+		for (int[] compTempArr : framesComponents) {
+			// Get 6x6 Macro-Blocks from the image bytes array: RGB component
+			// wise, 1200 blocks will be created
+			Map<String, List<int[][]>> blocks = getBlocksFromImageComponents(
+					Constants.WIDTH, Constants.HEIGHT, compTempArr);
+
+			int[] newComponents = getImageComponentsFromBlocks(
+					blocks.get("red"), blocks.get("green"), blocks.get("blue"));
+
+			int ind = 0;
+			for (int y = 0; y < Constants.HEIGHT; y++) {
+				for (int x = 0; x < Constants.WIDTH; x++) {
+
+					int r = newComponents[ind];
+					int g = newComponents[ind + Constants.HEIGHT
+							* Constants.WIDTH];
+					int b = newComponents[ind + Constants.HEIGHT
+							* Constants.WIDTH * 2];
 
 					int pix = 0xff000000 | ((r & 0xff) << 16)
 							| ((g & 0xff) << 8) | (b & 0xff);
@@ -96,15 +169,120 @@ public class MotionDescriptor {
 					ind++;
 				}
 			}
-			ind = ind + (Constants.HEIGHT * Constants.WIDTH * 2);
+
 			SwingUtilities.updateComponentTreeUI(frame);
-			Thread.sleep(100);
-			cntFrames++;
+			Thread.sleep(10);
 		}
-		
-		Utilities.trace("Final Count " + cntFrames + " idx " + ind);
-		videoIS.close();
-		Utilities.trace("generateVideoFrames END");
+		// test code ----> END
+	}
+
+	/**
+	 * This function returns the map of red, green and blue components of 15x15
+	 * blocks in the frame (image) 'red' -> List<int[][]>, the list is list of
+	 * arrays for each block so there will be 192 arrays in list for 15x15 block
+	 * size, for each of 'red', 'green' and 'blue' component
+	 * 
+	 * @param width
+	 * @param height
+	 * @param bytes
+	 * @return Map
+	 */
+	public Map<String, List<int[][]>> getBlocksFromImageComponents(int width,
+			int height, int[] bytes) {
+
+		Map<String, List<int[][]>> blocks = new HashMap<String, List<int[][]>>();
+
+		// Create list holding all the blocks for red, green and blue components
+		List<int[][]> redBlockList = new ArrayList<int[][]>();
+		List<int[][]> greenBlockList = new ArrayList<int[][]>();
+		List<int[][]> blueBlockList = new ArrayList<int[][]>();
+
+		int greenStep = height * width;
+		int blueStep = height * width * 2;
+		int heightStep = 0;
+		int macroBlockSize = Constants.MACRO_BLOCK_SIZE;
+
+		for (int ind = 0; ind < height * width;) {
+			// create RGB component blocks (15x15)
+			int[][] redCompBlock = new int[macroBlockSize][macroBlockSize];
+			int[][] greenCompBlock = new int[macroBlockSize][macroBlockSize];
+			int[][] blueCompBlock = new int[macroBlockSize][macroBlockSize];
+
+			int step = ind;
+			for (int i = 0; i < macroBlockSize; i++) {
+				for (int j = 0; j < macroBlockSize; j++) {
+					redCompBlock[i][j] = bytes[step + j];
+					greenCompBlock[i][j] = bytes[step + greenStep + j];
+					blueCompBlock[i][j] = bytes[step + blueStep + j];
+				}
+				step = step + width;
+			}
+
+			ind = ind + macroBlockSize;
+			if (ind % width == 0) {
+				heightStep = heightStep + (width * macroBlockSize);
+				ind = heightStep;
+			}
+
+			// Add blocks to list
+			redBlockList.add(redCompBlock);
+			greenBlockList.add(greenCompBlock);
+			blueBlockList.add(blueCompBlock);
+		}
+
+		blocks.put("red", redBlockList);
+		blocks.put("green", greenBlockList);
+		blocks.put("blue", blueBlockList);
+
+		return blocks;
+	}
+
+	/**
+	 * Function returns the original component array from the blocks created in
+	 * above method
+	 * 
+	 * @param redBlockList
+	 * @param greenBlockList
+	 * @param blueBlockList
+	 * @return
+	 */
+	private static int[] getImageComponentsFromBlocks(
+			List<int[][]> redBlockList, List<int[][]> greenBlockList,
+			List<int[][]> blueBlockList) {
+
+		int[] bytes = new int[Constants.WIDTH * Constants.HEIGHT * 3];
+		int idx = 0;
+		int greenStep = Constants.WIDTH * Constants.HEIGHT;
+		int blueStep = Constants.WIDTH * Constants.HEIGHT * 2;
+		int macroBlockSize = Constants.MACRO_BLOCK_SIZE;
+		int step = 0;
+		int heightStep = 0;
+
+		for (int i = 0; i < redBlockList.size(); i++) {
+
+			int[][] red = redBlockList.get(i);
+			int[][] green = greenBlockList.get(i);
+			int[][] blue = blueBlockList.get(i);
+
+			if (i != 0 && (i % ((int) Constants.WIDTH / macroBlockSize)) == 0) {
+				heightStep = heightStep + (Constants.WIDTH * macroBlockSize);
+				idx = heightStep;
+				step = 0;
+			} else {
+				idx = heightStep;
+			}
+
+			for (int j = 0; j < macroBlockSize; j++) {
+				for (int k = 0; k < macroBlockSize; k++) {
+					bytes[k + idx + step] = red[j][k];
+					bytes[k + idx + greenStep + step] = green[j][k];
+					bytes[k + idx + blueStep + step] = blue[j][k];
+				}
+				idx = idx + Constants.WIDTH;
+			}
+			step = step + macroBlockSize;
+		}
+		return bytes;
 	}
 
 }
