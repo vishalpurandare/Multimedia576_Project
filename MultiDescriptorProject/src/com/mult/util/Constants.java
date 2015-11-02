@@ -25,4 +25,6 @@ public class Constants {
 	public static final int WIDTH = 240;
 	public static final int HEIGHT = 180;
 	
+	public static final int MACRO_BLOCK_SIZE = 15;
+	
 }
