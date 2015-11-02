@@ -9,6 +9,7 @@ public class Constants {
 	//Sanmukh: Constants
 	public static final int DESC_IMG_HEIGHT = 50;
 	public static final int NO_OF_FRAMES = 150;
+	public static final int AUDIO_SAMPLES_COUNT = 331081;
 
 	
 	//Vishal: Constants
