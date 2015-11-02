@@ -47,7 +47,7 @@ public class AudioIntensityDescriptor {
 				if(byteItr >= totalFramesRead * bytesPerFrame) break;
 				int currValue = audioBytes[byteItr];
 				currValue = (currValue << 8) | audioBytes[byteItr+1]; 
-				valueAdded += currValue;
+				valueAdded += Math.abs(prevValue - currValue);
 				byteItr+=2;
 				prevValue = currValue;
 				byteCnt++;
