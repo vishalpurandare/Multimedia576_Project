@@ -85,7 +85,7 @@ public class MotionDescriptor {
 			//Created the bean object and each property is assigned here
 			VideoFrameBean videoFrame = new VideoFrameBean();
 			componentArray = new int[(int) Constants.HEIGHT * Constants.WIDTH * 3];
-			framePixels = new int[Constants.WIDTH][ Constants.HEIGHT];
+			framePixels = new int[Constants.HEIGHT][ Constants.WIDTH];
 			
 			int idx = 0;
 			for (int y = 0; y < Constants.HEIGHT; y++) {
@@ -104,8 +104,8 @@ public class MotionDescriptor {
 					componentArray[idx] = rCmp;
 					componentArray[idx + Constants.HEIGHT * Constants.WIDTH] = gCmp;
 					componentArray[idx + Constants.HEIGHT * Constants.WIDTH * 2] = bCmp;
-					
-					framePixels[x][y] = pix;
+				
+					framePixels[y][x] = pix;
 					
 					ind++;
 					idx++;
@@ -129,8 +129,15 @@ public class MotionDescriptor {
 		return videoFrames;
 	}
 
-	// test code
-	public void testBlocks(List<VideoFrameBean> videoFrames, BufferedImage img,
+	/**
+	 * For Testing all the properties of the frame
+	 * 		
+	 * @param videoFrames
+	 * @param img
+	 * @param frame
+	 * @throws InterruptedException
+	 */
+	public void testFrames(List<VideoFrameBean> videoFrames, BufferedImage img,
 			JFrame frame) throws InterruptedException {
 		//test code ---> START
 		Thread.sleep(3000);
@@ -178,6 +185,23 @@ public class MotionDescriptor {
 					int pix = newComponentsPixs[ind];
 					img.setRGB(x, y, pix);
 					ind++;
+				}
+			}
+			
+			SwingUtilities.updateComponentTreeUI(frame);
+			Thread.sleep(10);
+		}
+		//test with pixels- END
+		
+		Thread.sleep(3000);
+		//test with pixels- START
+		Utilities.trace("TEST WITH PIXELS 2D ARRAY");
+		for (VideoFrameBean videoFrame : videoFrames) {
+			int[][] pixArr = videoFrame.getFramePixels();
+			
+			for (int y = 0; y < Constants.HEIGHT; y++) {
+				for (int x = 0; x < Constants.WIDTH; x++) {
+					img.setRGB(x, y, pixArr[x][y]);
 				}
 			}
 			

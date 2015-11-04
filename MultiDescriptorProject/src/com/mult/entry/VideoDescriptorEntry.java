@@ -54,7 +54,7 @@ public class VideoDescriptorEntry {
 				
 				for (int y = 0; y < Constants.HEIGHT; y++) {
 					for (int x = 0; x < Constants.WIDTH; x++) {
-						img.setRGB(x, y, framePixels[x][y]);
+						img.setRGB(x, y, framePixels[y][x]);
 					}
 				}
 				
@@ -63,22 +63,8 @@ public class VideoDescriptorEntry {
 			}
 			 
 			// call to test code
-			mObj.testBlocks(videoFrames, img, frame);
-			
-			//(2) MPEG Based Motion-Compensation technique
-			// (2.1) Divide each Frame into Macro-Block
-			/*for (int[] compTempArr : framesComponents) {
-				//Will return blocks for each of the frame (image), 15x15 block, 192 for each red, green and blue
-				//Map<String, List<int[][]>> compMacroBlocksMap = mObj.getBlocksComponentsFromImageComponents(compTempArr);
-				
-				//get 2D pixels array from component Array for the frame
-				int[][] pixelsArr = mObj.getPixelsFromImageComponents(compTempArr);
-				// 192 blocks of 15x15 pixels for the frame
-				List<int[][]> pixMacroBlocks = mObj.getBlocksPixelsFromImageComponents(compTempArr);
-				
-				
-				
-			}*/
+			mObj.testFrames(videoFrames, img, frame);
+			//test-code ends
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
