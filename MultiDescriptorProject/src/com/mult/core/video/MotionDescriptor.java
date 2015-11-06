@@ -201,7 +201,7 @@ public class MotionDescriptor {
 			
 			for (int y = 0; y < Constants.HEIGHT; y++) {
 				for (int x = 0; x < Constants.WIDTH; x++) {
-					img.setRGB(x, y, pixArr[x][y]);
+					img.setRGB(x, y, pixArr[y][x]);
 				}
 			}
 			
