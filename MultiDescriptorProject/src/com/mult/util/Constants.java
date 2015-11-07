@@ -23,6 +23,8 @@ public class Constants {
 			+ FILE_PATH_SEPARATOR + "CSCI576-Multimedia System Design"
 			+ FILE_PATH_SEPARATOR + "Final-Project" + FILE_PATH_SEPARATOR
 			+ "video_samples";
+	
+	public static final String SERIALIZED_FILE_PATH = "C:" + FILE_PATH_SEPARATOR + "Data" + FILE_PATH_SEPARATOR + "serializedObj.ser";
 	public static final int WIDTH = 240;
 	public static final int HEIGHT = 180;
 	public static final int MACRO_BLOCK_SIZE = 15;

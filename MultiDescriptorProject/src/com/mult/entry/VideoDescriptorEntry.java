@@ -4,7 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -15,6 +18,7 @@ import javax.swing.SwingUtilities;
 
 import com.mult.core.video.MotionDescriptor;
 import com.mult.util.Constants;
+import com.mult.util.DescriptorBean;
 import com.mult.util.Utilities;
 import com.mult.util.VideoFrameBean;
 
@@ -156,15 +160,39 @@ public class VideoDescriptorEntry {
 
 			}
 
+			Map<String, int[]> descriptorMap = new HashMap<String, int[]>();
+			//fileName -> arrayVal
+			descriptorMap.put(currFile.getAbsolutePath(), motionVectorDescriptorArray);
+			
+			DescriptorBean descriptorObj = new DescriptorBean();
+			descriptorObj.setDescriptorMap(descriptorMap);
+			Utilities.serializeObject(descriptorObj);
+			
+			DescriptorBean descriptorBeanRead = (DescriptorBean) Utilities.deSerializeObject();
+			
+			Map<String, int[]> descriptorMapRead = descriptorBeanRead.getDescriptorMap();
+			
+			Iterator<String> mapItr = descriptorMapRead.keySet().iterator();
+
+			while (mapItr.hasNext()) {
+				String key =  mapItr.next();
+				System.out.println(key + " ---->> " + descriptorMapRead.get(key));
+				mapItr.remove(); // avoids a ConcurrentModificationException
+			}
+			
 			BufferedImage vDescImage = Utilities
 					.createDescriptorImage(motionVectorDescriptorArray);
 			Utilities.displayImage(vDescImage, "VideoDescriptor");
+			
+			
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 
