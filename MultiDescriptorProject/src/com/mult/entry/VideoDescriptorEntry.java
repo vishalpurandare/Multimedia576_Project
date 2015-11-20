@@ -4,8 +4,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -170,20 +171,26 @@ public class VideoDescriptorEntry {
 			descriptorMap.put(currFile.getAbsolutePath(), motionVectorDescriptorArray);
 			
 			DescriptorBean descriptorObj = new DescriptorBean();
-			descriptorObj.setDescriptorMap(descriptorMap);
-			Utilities.serializeObject(descriptorObj);
+			List<int[]> descriptorsList = new ArrayList<int[]>();
+			descriptorsList.add(motionVectorDescriptorArray);
 			
-			DescriptorBean descriptorBeanRead = (DescriptorBean) Utilities.deSerializeObject();
+			descriptorObj.setFileName(currFile.getAbsolutePath());
+			descriptorObj.setDescriptorsList(descriptorsList);
 			
-			Map<String, int[]> descriptorMapRead = descriptorBeanRead.getDescriptorMap();
+			Utilities.serializeObject(descriptorObj, currFile.getName());
 			
-			Iterator<String> mapItr = descriptorMapRead.keySet().iterator();
-
-			while (mapItr.hasNext()) {
-				String key =  mapItr.next();
-				System.out.println(key + " ---->> " + descriptorMapRead.get(key));
-				mapItr.remove(); // avoids a ConcurrentModificationException
-			}
+			//Deserialize object
+			DescriptorBean descriptorBeanRead = (DescriptorBean) Utilities.deSerializeObject(currFile.getName());
+			List<int[]> descriptorList = descriptorBeanRead.getDescriptorsList();
+			//get video descriptor for current video
+			int[] motionVectorDescriptorArraySer = descriptorList.get(0);
+			
+			System.out.println("Are Equals: " + Arrays.equals(motionVectorDescriptorArray, motionVectorDescriptorArraySer));
+			
+			//Sample from serialized file
+			BufferedImage vSerDescImage = Utilities
+					.createDescriptorImage(motionVectorDescriptorArraySer);
+			Utilities.displayImage(vSerDescImage, "VideoDescriptor");
 			
 			BufferedImage vDescImage = Utilities
 					.createDescriptorImage(motionVectorDescriptorArray);
