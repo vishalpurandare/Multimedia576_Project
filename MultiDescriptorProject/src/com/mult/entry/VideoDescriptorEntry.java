@@ -85,15 +85,17 @@ public class VideoDescriptorEntry {
 			// call to test code
 			// mObj.testFrames(videoFrames, img, frame);
 			// test-code ends
+			
 			frame.dispose();
 
-			// Actual Motion Vector Descpriptor Code
+			// Actual Motion Vector Descriptor Code
 			int[] motionVectorDescriptorArray = new int[150];
 			long[] motionVectorLongArray = new long[150];
+			
 			thisObj.setVideoFrames(videoFrames);
 			long maxMotionVector = Long.MIN_VALUE;
 
-			// display frame test - START
+			// display frame (current and previous) test - START
 			BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH,
 					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
@@ -119,7 +121,7 @@ public class VideoDescriptorEntry {
 			frame2.setLocation(900, 200);
 			frame2.setVisible(true);
 			frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			// display frame test - END
+			// display frame (current and previous) test - END
 
 			// initialized for 1st frame
 			motionVectorDescriptorArray[0] = 0;
@@ -127,14 +129,18 @@ public class VideoDescriptorEntry {
 			for (int frameItr = 1; frameItr < videoFrames.size(); frameItr++) {
 
 				long fMotionValue = thisObj.getFrameMotionValue(frameItr);
-				if (maxMotionVector < fMotionValue)
+				
+				if (maxMotionVector < fMotionValue) {
 					maxMotionVector = fMotionValue;
+				}
+				
 				motionVectorLongArray[frameItr] = fMotionValue;
 				System.out.println(fMotionValue);
 
-				// test-code for displaying frame - START
+				// test-code for displaying frame (current and previous) - START
 				VideoFrameBean prevFrame = videoFrames.get(frameItr - 1);
 				int[][] prevFramePixels = prevFrame.getFramePixels();
+				
 				for (int y = 0; y < Constants.HEIGHT; y++) {
 					for (int x = 0; x < Constants.WIDTH; x++) {
 						prevFrameImg.setRGB(x, y, prevFramePixels[y][x]);
@@ -144,20 +150,19 @@ public class VideoDescriptorEntry {
 
 				VideoFrameBean currFrame = videoFrames.get(frameItr);
 				int[][] currFramePixels = currFrame.getFramePixels();
+				
 				for (int y = 0; y < Constants.HEIGHT; y++) {
 					for (int x = 0; x < Constants.WIDTH; x++) {
 						currFrameImg.setRGB(x, y, currFramePixels[y][x]);
 					}
 				}
 				SwingUtilities.updateComponentTreeUI(frame2);
-				// test-code for displaying frame - END
+				// test-code for displaying frame (current and previous) - END
 
 			}
 
 			for (int windowItr = 0; windowItr < motionVectorDescriptorArray.length; windowItr++) {
-
 				motionVectorDescriptorArray[windowItr] = (int) ((motionVectorLongArray[windowItr] / (double) maxMotionVector) * 255);
-
 			}
 
 			Map<String, int[]> descriptorMap = new HashMap<String, int[]>();
@@ -199,13 +204,16 @@ public class VideoDescriptorEntry {
 	}
 
 	private long getFrameMotionValue(int frameItr) {
+		//Initialize the finalMotionValue
 		long finalMotionValue = 0;
-
+		
+		//previous and current frames taken from videoFrames list
 		VideoFrameBean previousFrame = videoFrames.get(frameItr - 1);
 		VideoFrameBean currentFrame = videoFrames.get(frameItr);
 
 		int[][] prevFramePixels = previousFrame.getFramePixels();
 		List<int[][]> currFrameBlocks = currentFrame.getPixMacroBlocks();
+		
 		int matchedHeight = 0;
 		int matchedWidth = 0;
 
@@ -221,6 +229,7 @@ public class VideoDescriptorEntry {
 			// Loop over previous full frame
 			for (int hItr = 0; hItr < Constants.HEIGHT
 					- Constants.MACRO_BLOCK_SIZE; hItr++) {
+				
 				for (int wItr = 0; wItr < Constants.WIDTH
 						- Constants.MACRO_BLOCK_SIZE; wItr++) {
 
@@ -233,28 +242,34 @@ public class VideoDescriptorEntry {
 
 					for (int prevFrameHItr = hItr; prevFrameHItr < hItr
 							+ Constants.MACRO_BLOCK_SIZE; prevFrameHItr++) {
+						
 						currFrameWidth = 0;
 						for (int prevFrameWItr = wItr; prevFrameWItr < wItr
 								+ Constants.MACRO_BLOCK_SIZE; prevFrameWItr++) {
+							
 							long pixDiff = Math
 									.abs(currentFrameBlock[currFrameHeight][currFrameWidth]
 											- prevFramePixels[prevFrameHItr][prevFrameWItr]);
 							cumulativeSum += pixDiff;
-							if (cumulativeSum < 0)
+							
+							if (cumulativeSum < 0) {
 								cumulativeSum = Long.MAX_VALUE;
+							}
+							
 							currFrameWidth++;
 						}
 						currFrameHeight++;
 					}
-
+					
+					//Mean Absolute Difference cumulativeSum
+					cumulativeSum = Math.abs(cumulativeSum / (Constants.MACRO_BLOCK_SIZE * Constants.MACRO_BLOCK_SIZE));
+					
 					// Storing the pixel (start of the block best matched with
 					// currentBlock of the currentFrame)
 					if (currentBlockMinDiff >= cumulativeSum) {
-
 						currentBlockMinDiff = cumulativeSum;
 						matchedHeight = hItr;
 						matchedWidth = wItr;
-
 					}
 
 				}
