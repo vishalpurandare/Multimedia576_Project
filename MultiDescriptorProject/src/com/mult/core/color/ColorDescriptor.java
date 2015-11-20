@@ -31,27 +31,35 @@ public class ColorDescriptor {
 		this.videoFrames = videoFrames;
 	}
 
+	/**
+	 * Test Code Main
+	 * 
+	 * @param arg
+	 */
 	public static void main(String[] arg) {
 
-		File dirVideo = new File(Constants.VIDEO_PATH_SANMUKH_PC);
+		File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
 		File[] directoryListing = dirVideo.listFiles();
 
 		// currently only working on one video file, later do it for all files
 		// in directoryListings
-		File currFile = directoryListing[0];
-		System.out.println(currFile);
+		File currFile = directoryListing[1];
+		System.out.println(currFile.getName());
 
-		MotionDescriptor mObj = MotionDescriptor.getInstance();
+		MotionDescriptor mObj = new MotionDescriptor();
 		ColorDescriptor thisObj = new ColorDescriptor();
 
 		try {
 			// (1) Divide The Video into frames
-			List<VideoFrameBean> videoFrames = mObj.generateVideoFrames(currFile);
+			List<VideoFrameBean> videoFrames = mObj
+					.generateVideoFrames(currFile);
 
 			// Test Image Display code - can be removed later
-			Utilities.trace("Number of Frames processed: " + videoFrames.size());
+			Utilities
+					.trace("Number of Frames processed: " + videoFrames.size());
 
-			BufferedImage img = new BufferedImage(Constants.WIDTH, Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
+			BufferedImage img = new BufferedImage(Constants.WIDTH,
+					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
 			JPanel panel = new JPanel();
 			JComponent comp = new JLabel(new ImageIcon(img));
@@ -89,11 +97,11 @@ public class ColorDescriptor {
 			thisObj.setVideoFrames(videoFrames);
 
 			// display frame (current and previous) test - START
-			BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH, Constants.HEIGHT,
-					BufferedImage.TYPE_INT_RGB);
+			BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH,
+					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
-			BufferedImage currFrameImg = new BufferedImage(Constants.WIDTH, Constants.HEIGHT,
-					BufferedImage.TYPE_INT_RGB);
+			BufferedImage currFrameImg = new BufferedImage(Constants.WIDTH,
+					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
 			JPanel panel1 = new JPanel();
 			JComponent comp1 = new JLabel(new ImageIcon(prevFrameImg));
@@ -134,7 +142,8 @@ public class ColorDescriptor {
 				colorDescriptorArray[windowItr] = (int) ((colorLongArray[windowItr] / (double) maxColorValue) * 255);
 			}
 
-			BufferedImage vDescImage = Utilities.createDescriptorImage(colorDescriptorArray);
+			BufferedImage vDescImage = Utilities
+					.createDescriptorImage(colorDescriptorArray);
 			Utilities.displayImage(vDescImage, "VideoDescriptor");
 
 		} catch (FileNotFoundException e) {
@@ -147,9 +156,69 @@ public class ColorDescriptor {
 
 	}
 
-	// returns the most intensive color for the frame
+	/**
+	 * return motion vector descriptor called from Application
+	 * 
+	 * @param currFile
+	 * @return
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public int[] getColorDescriptor(File currFile)
+			throws IOException, InterruptedException {
+		
+		long startTime = System.currentTimeMillis();
+
+		Utilities.trace("getColorDescriptor START");
+		Utilities.trace("Processing File: START " + currFile.getName());
+		
+		MotionDescriptor mObj = new MotionDescriptor();
+
+		// (1) Divide The Video into frames
+		List<VideoFrameBean> videoFrames = mObj.generateVideoFrames(currFile);
+
+		// Actual Motion Vector Descriptor Code
+		int[] colorDescriptorArray = new int[150];
+		long[] colorLongArray = new long[150];
+
+		setVideoFrames(videoFrames);
+
+		// initialized for 1st frame
+		long maxColorValue = Integer.MIN_VALUE;
+		for (int frameItr = 0; frameItr < videoFrames.size(); frameItr++) {
+
+			long fColorValue = getFrameColorValue(frameItr);
+
+			if (maxColorValue < fColorValue) {
+				maxColorValue = fColorValue;
+			}
+			colorLongArray[frameItr] = fColorValue;
+
+		}
+
+		for (int windowItr = 0; windowItr < colorDescriptorArray.length; windowItr++) {
+			colorDescriptorArray[windowItr] = (int) ((colorLongArray[windowItr] / (double) maxColorValue) * 255);
+		}
+
+		long endTime = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+
+		Utilities.trace("Total Time required: " + totalTime + " MS "
+				+ totalTime / (1000 * 60) + " Minutes");
+		Utilities.trace("Processing File: END " + currFile.getName());
+		Utilities.trace("getColorDescriptor END");
+
+		return colorDescriptorArray;
+	}
+
+	/**
+	 * Return color intensity value for current frame
+	 * 
+	 * @param frameItr
+	 * @return
+	 */
 	private long getFrameColorValue(int frameItr) {
-		//Initialize the finalMotionValue
+		// Initialize the finalMotionValue
 		long frameValue = 0;
 		VideoFrameBean currentFrame = videoFrames.get(frameItr);
 		long[] colBrightsArray = new long[Constants.WIDTH];
@@ -157,36 +226,28 @@ public class ColorDescriptor {
 		for (int wItr = 0; wItr < Constants.WIDTH; wItr++) {
 			long colBrights = 0;
 			for (int hItr = 0; hItr < Constants.HEIGHT; hItr++) {
-			
-			
 				int pixVal = currFramePixels[hItr][wItr];
-				
-			    
-				
+
 				int rCmp = ((pixVal >> 16) & 0xff);
 				int gCmp = ((pixVal >> 8) & 0xff);
 				int bCmp = ((pixVal) & 0xff);
-				
+
 				float[] hsv = new float[3];
 				Color.RGBtoHSB(rCmp, gCmp, bCmp, hsv);
-				
-				if(hsv[2]*100 > 50)
+
+				// Defined the threshold of 50% for intense values
+				if (hsv[2] * 100 > 50) {
 					colBrights++;
-					
-				
-				/*long cumulativeVal = rCmp + gCmp + bCmp;
-				
-				if (maxColorVal  < cumulativeVal) {
-					maxColorVal = cumulativeVal;
-				}*/
+				}
 			}
 			colBrightsArray[wItr] = colBrights;
 		}
-		//long frameValue = 0;
+		// long frameValue = 0;
 		for (int wItr = 1; wItr < Constants.WIDTH; wItr++) {
-			frameValue += Math.abs(colBrightsArray[wItr] - colBrightsArray[wItr-1]);
+			frameValue += Math.abs(colBrightsArray[wItr]
+					- colBrightsArray[wItr - 1]);
 		}
-		
+
 		return frameValue;
 	}
 

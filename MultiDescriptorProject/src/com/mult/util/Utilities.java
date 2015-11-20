@@ -50,7 +50,7 @@ public class Utilities {
 		out.writeObject(obj);
 		out.close();
 		fileOut.close();
-		Utilities.trace("Serialized --- " + fileOut);;
+		Utilities.trace("Serialized --- " + fileOut.toString());
 	}
 
 	public static Object deSerializeObject(String fileName) throws IOException, ClassNotFoundException {
@@ -59,7 +59,7 @@ public class Utilities {
         Object descriptorObj =  in.readObject();
         in.close();
         fileIn.close();
-		Utilities.trace("De-Serialized --- " + fileIn);
+		Utilities.trace("De-Serialized --- " + fileIn.toString());
 		return descriptorObj;
 	}
 	
@@ -110,7 +110,7 @@ public class Utilities {
 	}
 	
 	public static void trace(String msg) {
-		System.out.println("-------------------------------------- " + msg);
+		System.out.println(msg);
 	}
 
 }

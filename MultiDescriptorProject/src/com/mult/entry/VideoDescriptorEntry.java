@@ -35,6 +35,11 @@ public class VideoDescriptorEntry {
 		this.videoFrames = videoFrames;
 	}
 
+	/**
+	 * main method
+	 * used to testing video motion vector descriptor
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
@@ -45,7 +50,7 @@ public class VideoDescriptorEntry {
 		File currFile = directoryListing[0];
 		System.out.println(currFile);
 
-		MotionDescriptor mObj = MotionDescriptor.getInstance();
+		MotionDescriptor mObj = new MotionDescriptor();
 		VideoDescriptorEntry thisObj = new VideoDescriptorEntry();
 
 		try {
@@ -210,6 +215,70 @@ public class VideoDescriptorEntry {
 
 	}
 
+	/**
+	 * return motion vector descriptor called from Application
+	 * @param currFile
+	 * @return
+	 * @throws InterruptedException 
+	 * @throws IOException 
+	 */
+	public int[] getVideoMotionVectorDescriptor(File currFile) throws IOException, InterruptedException {
+		
+		long startTime = System.currentTimeMillis();
+		
+		Utilities.trace("getVideoMotionVectorDescriptor START");
+		Utilities.trace("Processing File: START " + currFile.getName() );
+		
+		MotionDescriptor mObj = new MotionDescriptor();
+		
+		// (1) Divide The Video into frames
+		List<VideoFrameBean> videoFrames = mObj
+				.generateVideoFrames(currFile);
+
+		// Actual Motion Vector Descriptor Code
+		int[] motionVectorDescriptorArray = new int[150];
+		long[] motionVectorLongArray = new long[150];
+		
+		setVideoFrames(videoFrames);
+		
+		long maxMotionVector = Long.MIN_VALUE;
+
+		// initialized for 1st frame
+		motionVectorDescriptorArray[0] = 0;
+
+		for (int frameItr = 1; frameItr < videoFrames.size(); frameItr++) {
+
+			long fMotionValue = getFrameMotionValue(frameItr);
+			
+			if (maxMotionVector < fMotionValue) {
+				maxMotionVector = fMotionValue;
+			}
+			
+			motionVectorLongArray[frameItr] = fMotionValue;
+		}
+
+		//Normalize values to 0-255
+		for (int windowItr = 0; windowItr < motionVectorDescriptorArray.length; windowItr++) {
+			motionVectorDescriptorArray[windowItr] = (int) ((motionVectorLongArray[windowItr] / (double) maxMotionVector) * 255);
+		}
+		
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		
+		Utilities.trace("Total Time required: " + totalTime + " MS " + totalTime/(1000*60) + " Minutes");
+		Utilities.trace("Processing File: END " + currFile.getName() );
+		Utilities.trace("getVideoMotionVectorDescriptor END");
+		
+		return motionVectorDescriptorArray;
+	}
+	
+	
+	
+	/**
+	 * Returns the motion vector value for the frame
+	 * @param frameItr
+	 * @return
+	 */
 	private long getFrameMotionValue(int frameItr) {
 		//Initialize the finalMotionValue
 		long finalMotionValue = 0;

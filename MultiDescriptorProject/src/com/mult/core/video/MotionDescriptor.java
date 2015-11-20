@@ -19,27 +19,6 @@ import com.mult.util.VideoFrameBean;
 
 public class MotionDescriptor {
 
-	// Singleton object
-	private static MotionDescriptor motionDescObj;
-
-	private MotionDescriptor() {
-
-	}
-
-	/**
-	 * Returns the instance of the class {@link MotionDescriptor}
-	 * 
-	 * @return {@link MotionDescriptor}
-	 */
-	public static MotionDescriptor getInstance() {
-
-		if (motionDescObj == null) {
-			motionDescObj = new MotionDescriptor();
-		}
-
-		return motionDescObj;
-	}
-
 	/**
 	 * Generate Video Frames and all it's properties
 	 * 
@@ -52,15 +31,13 @@ public class MotionDescriptor {
 	public List<VideoFrameBean> generateVideoFrames(File videoFile) throws IOException,
 			InterruptedException {
 		
-		Utilities.trace("generateVideoFrames START");
-		
 		//Create list of frames
 		List<VideoFrameBean> videoFrames = new ArrayList<VideoFrameBean>();
 		
 		//Read From Video File- START
 		InputStream videoIS = new FileInputStream(videoFile);
 		long len = videoFile.length();
-		Utilities.trace("Length of file: " + len);
+		
 		byte[] bytes = new byte[(int) len];
 		int offset = 0;
 		int numRead = 0;
@@ -122,9 +99,6 @@ public class MotionDescriptor {
 			ind = ind + (Constants.HEIGHT * Constants.WIDTH * 2);
 			cntFrames++;
 		}
-
-		Utilities.trace("Final Frames Count " + cntFrames + " idx " + ind);
-		Utilities.trace("generateVideoFrames END");
 
 		return videoFrames;
 	}
