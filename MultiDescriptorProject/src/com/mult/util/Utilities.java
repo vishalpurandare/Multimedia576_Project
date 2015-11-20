@@ -52,6 +52,59 @@ public class Utilities {
 		fileOut.close();
 		Utilities.trace("Serialized --- " + fileOut);;
 	}
+	
+	
+	public static int getDescriptorDifference(int[] desc1, int[] desc2)
+	{
+		int minDiff = Integer.MAX_VALUE;
+		
+		int diffValTot = 0;
+		for(int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++)
+		{
+			
+				diffValTot += Math.abs(desc1[descItr1] - desc2[descItr1]);
+		}
+		if(minDiff > diffValTot)
+			minDiff = diffValTot;
+		
+		if(minDiff == 0)
+			return minDiff;
+		
+		for(int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++)
+		{
+			int diffVal = 0;
+			int desc1Ptr = descItr1;
+			int lastDesc2Ptr = 0;
+			
+			for(int descItr2 = 0; desc1Ptr < Constants.NO_OF_FRAMES; descItr2++)
+			{
+				diffVal += Math.abs(desc1[desc1Ptr] - desc2[descItr2]);
+				desc1Ptr++;
+				lastDesc2Ptr = descItr2;
+			}
+			diffVal += ((Constants.NO_OF_FRAMES - lastDesc2Ptr) * 128);
+			if(minDiff > diffVal)
+				minDiff = diffVal;
+		}
+		
+		for(int descItr2 = 0; descItr2 < Constants.NO_OF_FRAMES; descItr2++)
+		{
+			int diffVal = 0;
+			int desc2Ptr = descItr2;
+			int lastDesc1Ptr = 0;
+			
+			for(int descItr1 = 0; desc2Ptr < Constants.NO_OF_FRAMES; descItr1++)
+			{
+				diffVal += Math.abs(desc2[desc2Ptr] - desc1[descItr1]);
+				desc2Ptr++;
+				lastDesc1Ptr = descItr1;
+			}
+			diffVal += ((Constants.NO_OF_FRAMES - lastDesc1Ptr) * 128);
+			if(minDiff > diffVal)
+				minDiff = diffVal;
+		}
+		return minDiff;
+	}
 
 	public static Object deSerializeObject() throws IOException, ClassNotFoundException {
 		FileInputStream fileIn = new FileInputStream(Constants.SERIALIZED_FILE_PATH);
