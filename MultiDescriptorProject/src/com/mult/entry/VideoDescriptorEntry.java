@@ -4,11 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -19,7 +15,6 @@ import javax.swing.SwingUtilities;
 
 import com.mult.core.video.MotionDescriptor;
 import com.mult.util.Constants;
-import com.mult.util.DescriptorBean;
 import com.mult.util.Utilities;
 import com.mult.util.VideoFrameBean;
 
@@ -42,16 +37,17 @@ public class VideoDescriptorEntry {
 	 */
 	public static void main(String[] args) {
 
+		//File dirVideo = new File("C:\\Data\\imp-Data\\USC Data\\Courses-Fall 2015\\CSCI576-Multimedia System Design\\Final-Project\\Testing Fall 2015");
 		File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
 		File[] directoryListing = dirVideo.listFiles();
 
 		// currently only working on one video file, later do it for all files
 		// in directoryListings
-		File currFile = directoryListing[0];
+		File currFile = directoryListing[13];
 		System.out.println(currFile);
 
 		MotionDescriptor mObj = new MotionDescriptor();
-		VideoDescriptorEntry thisObj = new VideoDescriptorEntry();
+		//VideoDescriptorEntry thisObj = new VideoDescriptorEntry();
 
 		try {
 			// (1) Divide The Video into frames
@@ -94,7 +90,7 @@ public class VideoDescriptorEntry {
 			
 			frame.dispose();
 
-			// Actual Motion Vector Descriptor Code
+			/*// Actual Motion Vector Descriptor Code
 			int[] motionVectorDescriptorArray = new int[150];
 			long[] motionVectorLongArray = new long[150];
 			
@@ -164,7 +160,6 @@ public class VideoDescriptorEntry {
 				}
 				SwingUtilities.updateComponentTreeUI(frame2);
 				// test-code for displaying frame (current and previous) - END
-
 			}
 
 			for (int windowItr = 0; windowItr < motionVectorDescriptorArray.length; windowItr++) {
@@ -200,8 +195,7 @@ public class VideoDescriptorEntry {
 			BufferedImage vDescImage = Utilities
 					.createDescriptorImage(motionVectorDescriptorArray);
 			Utilities.displayImage(vDescImage, "VideoDescriptor");
-			
-			
+*/
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -209,10 +203,7 @@ public class VideoDescriptorEntry {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
+		} 
 	}
 
 	/**

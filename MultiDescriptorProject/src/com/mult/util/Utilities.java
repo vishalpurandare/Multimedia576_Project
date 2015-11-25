@@ -1,11 +1,13 @@
 package com.mult.util;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -44,8 +46,14 @@ public class Utilities {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	public static void serializeObject(Object obj, String fileName) throws IOException {
-		FileOutputStream fileOut = new FileOutputStream(Constants.SERIALIZED_FILE_PATH + fileName + ".ser");
+	public static void serializeObject(Object obj, String fileName, boolean ifTestData) throws IOException {
+		
+		FileOutputStream fileOut = null;
+		if (ifTestData) {
+			fileOut = new FileOutputStream(Constants.SERIALIZED_FILE_PATH_TEST + fileName + ".ser");
+		} else {
+			fileOut = new FileOutputStream(Constants.SERIALIZED_FILE_PATH + fileName + ".ser");
+		}
 		ObjectOutputStream out = new ObjectOutputStream(fileOut);
 		out.writeObject(obj);
 		out.close();
@@ -53,9 +61,17 @@ public class Utilities {
 		Utilities.trace("Serialized --- " + fileOut.toString());
 	}
 
-	public static Object deSerializeObject(String fileName) throws IOException, ClassNotFoundException {
-		FileInputStream fileIn = new FileInputStream(Constants.SERIALIZED_FILE_PATH + fileName + ".ser");
-        ObjectInputStream in = new ObjectInputStream(fileIn);
+	public static Object deSerializeObject(String fileName, boolean ifTestData) throws IOException, ClassNotFoundException {
+		
+		FileInputStream fileIn = null;
+		
+		if (ifTestData) {
+			fileIn = new FileInputStream(Constants.SERIALIZED_FILE_PATH_TEST + fileName);
+		} else {
+			fileIn = new FileInputStream(Constants.SERIALIZED_FILE_PATH + fileName);
+		}
+		
+		ObjectInputStream in = new ObjectInputStream(fileIn);
         Object descriptorObj =  in.readObject();
         in.close();
         fileIn.close();
@@ -65,10 +81,8 @@ public class Utilities {
 	
 	public static int getDescriptorDifference(int[] desc1, int[] desc2) {
 		int minDiff = Integer.MAX_VALUE;
-
 		int diffValTot = 0;
 		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++) {
-
 			diffValTot += Math.abs(desc1[descItr1] - desc2[descItr1]);
 		}
 		if (minDiff > diffValTot)
@@ -107,6 +121,72 @@ public class Utilities {
 				minDiff = diffVal;
 		}
 		return minDiff;
+	}
+	
+	public static void bestMatchDecriptorToDb(DescriptorBean descriptorObj) throws ClassNotFoundException, IOException {
+		File serializedDir = new File(Constants.SERIALIZED_FILE_PATH);
+		File[] serFiles = serializedDir.listFiles();
+		
+		List<int[]> testDescriptors = descriptorObj.getDescriptorsList();
+		int[] motionDescriptorTest = testDescriptors.get(0);
+		int[] audioDescriptorTest = testDescriptors.get(1);
+		int[] colorDescriptorTest = testDescriptors.get(2);
+		
+		int cumulativeDiffValue = Integer.MAX_VALUE;
+		String bestMatchedFileName = "";
+		
+		for (int serFilesItr = 0; serFilesItr < serFiles.length; serFilesItr++) {
+			File currSerFile = serFiles[serFilesItr];
+			DescriptorBean currBeanObj = (DescriptorBean) deSerializeObject(currSerFile.getName(), false);
+			
+			List<int[]> currDescriptorList = currBeanObj.getDescriptorsList();
+			
+			int[] motionDescirptor = currDescriptorList.get(0);
+			int[] audioDescirptor = currDescriptorList.get(1);
+			int[] colorDescriptor = currDescriptorList.get(2);
+		
+			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
+				System.out.print(String.format("%03d", motionDescirptor[j]) + " ");
+			}
+			System.out.println();
+			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
+				System.out.print(String.format("%03d", audioDescirptor[j]) + " ");
+			}
+			System.out.println();
+			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
+				System.out.print(String.format("%03d", colorDescriptor[j]) + " ");
+			}
+			System.out.println();
+			
+			System.out.println("#####################################################################");
+			
+			//int[] motionDescTemp = motionDescirptor.clone();
+			//motionDescTemp[20] = 20;
+			
+			int currMotionMinDiff = getDescriptorDifference(motionDescriptorTest, motionDescirptor);
+			int currAudioMinDiff = getDescriptorDifference(audioDescriptorTest, audioDescirptor);
+			int currColorMinDiff = getDescriptorDifference(colorDescriptorTest, colorDescriptor);
+			
+			int currMinDiff = currMotionMinDiff + currAudioMinDiff + currColorMinDiff;
+			
+			if (cumulativeDiffValue > currMinDiff) {
+				cumulativeDiffValue = currMinDiff;
+				bestMatchedFileName = currSerFile.getName();
+			}
+		}
+		
+		System.out.println(descriptorObj.getFileName() + " : Best Matched to : " + bestMatchedFileName);
+		
+	}
+	
+	public static void main(String[] arg) {
+		try {
+			String testFileName = "drama_test.rgb.ser";
+			DescriptorBean testObj = (DescriptorBean) deSerializeObject(testFileName, true);
+			bestMatchDecriptorToDb(testObj);
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void trace(String msg) {
