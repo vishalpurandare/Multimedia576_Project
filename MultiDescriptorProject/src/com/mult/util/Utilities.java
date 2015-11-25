@@ -75,12 +75,29 @@ public class Utilities {
         Object descriptorObj =  in.readObject();
         in.close();
         fileIn.close();
-		Utilities.trace("De-Serialized --- " + fileIn.toString());
+		//Utilities.trace("De-Serialized --- " + fileIn.toString());
 		return descriptorObj;
 	}
 	
+	/**
+	 * Using mean square error for getting difference between arrays
+	 * @param desc1
+	 * @param desc2
+	 * @return
+	 */
 	public static int getDescriptorDifference(int[] desc1, int[] desc2) {
-		int minDiff = Integer.MAX_VALUE;
+		
+		int meanErrorValue = 0;
+		
+		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++) {
+			int diffVal = Math.abs(desc1[descItr1] - desc2[descItr1]);
+			int squareVal = diffVal * diffVal;
+			meanErrorValue += squareVal;
+		}
+
+		return (int) (meanErrorValue / Constants.NO_OF_FRAMES);
+		
+		/*
 		int diffValTot = 0;
 		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++) {
 			diffValTot += Math.abs(desc1[descItr1] - desc2[descItr1]);
@@ -120,7 +137,7 @@ public class Utilities {
 			if (minDiff > diffVal)
 				minDiff = diffVal;
 		}
-		return minDiff;
+		*/		
 	}
 	
 	public static void bestMatchDecriptorToDb(DescriptorBean descriptorObj) throws ClassNotFoundException, IOException {
@@ -145,20 +162,37 @@ public class Utilities {
 			int[] audioDescirptor = currDescriptorList.get(1);
 			int[] colorDescriptor = currDescriptorList.get(2);
 		
+			System.out.println(currSerFile.getName());
+			
 			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
 				System.out.print(String.format("%03d", motionDescirptor[j]) + " ");
 			}
+			System.out.println();
+			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
+				System.out.print(String.format("%03d", motionDescriptorTest[j]) + " ");
+			}
+			
+			System.out.println();
 			System.out.println();
 			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
 				System.out.print(String.format("%03d", audioDescirptor[j]) + " ");
 			}
 			System.out.println();
 			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
+				System.out.print(String.format("%03d", audioDescriptorTest[j]) + " ");
+			}
+			
+			System.out.println();
+			System.out.println();
+			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
 				System.out.print(String.format("%03d", colorDescriptor[j]) + " ");
 			}
 			System.out.println();
+			for (int j = 0; j < Constants.NO_OF_FRAMES; j++) {
+				System.out.print(String.format("%03d", colorDescriptorTest[j]) + " ");
+			}
 			
-			System.out.println("#####################################################################");
+			System.out.println();
 			
 			//int[] motionDescTemp = motionDescirptor.clone();
 			//motionDescTemp[20] = 20;
@@ -168,6 +202,9 @@ public class Utilities {
 			int currColorMinDiff = getDescriptorDifference(colorDescriptorTest, colorDescriptor);
 			
 			int currMinDiff = currMotionMinDiff + currAudioMinDiff + currColorMinDiff;
+			System.out.println(" motion: " + currMotionMinDiff + " audio: " + currAudioMinDiff + " color: " + currColorMinDiff);
+			System.out.println("Current Min value: " + currMinDiff);
+			System.out.println("#####################################################################");
 			
 			if (cumulativeDiffValue > currMinDiff) {
 				cumulativeDiffValue = currMinDiff;
@@ -181,12 +218,25 @@ public class Utilities {
 	
 	public static void main(String[] arg) {
 		try {
-			String testFileName = "drama_test.rgb.ser";
+			//String testFileName = "drama_test.rgb.ser"; // best matched to sports3.v576.rgb.ser, run again for ranks
+			//String testFileName = "interview_test.rgb.ser"; // best matched to interview3.v576.rgb.ser, run again for ranks
+			String testFileName = "sports_test.rgb.ser"; // best matched to commercial1.v576.rgb.ser, run again for ranks
+			
 			DescriptorBean testObj = (DescriptorBean) deSerializeObject(testFileName, true);
 			bestMatchDecriptorToDb(testObj);
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static int[] getNormalizedDescriptorArray(long[] currLongArr, long maxValue, long minValue, int startFrom) {
+		int[] descriptorArray = new int[150];
+		descriptorArray[0] = 0;
+		
+		for (int windowItr = startFrom; windowItr < descriptorArray.length; windowItr++) {
+			descriptorArray[windowItr] = (int) (((currLongArr[windowItr] - minValue) / (double) (maxValue - minValue)) * 255);
+		}
+		return descriptorArray;
 	}
 	
 	public static void trace(String msg) {

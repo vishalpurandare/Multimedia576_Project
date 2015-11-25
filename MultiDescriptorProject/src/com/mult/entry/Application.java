@@ -30,7 +30,8 @@ public class Application {
 				ColorDescriptor colorObj = new ColorDescriptor();
 			
 				if (!ifTestMode) {
-					Utilities.trace("Creating Database Mode");
+					Utilities.trace("Create Database Mode");
+					Utilities.trace("***** ***** ***** ***** ******");
 					//Get Video Directory
 					File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
 					File[] directoryListingVid = dirVideo.listFiles();
@@ -77,8 +78,8 @@ public class Application {
 					File[] directoryListing = dirVideo.listFiles();
 					
 					//Taking first 2 test files, which are for same file, audio and video files
-					File testFileVid = directoryListing[0];
-					File testFileAud = directoryListing[1];
+					File testFileVid = directoryListing[4];
+					File testFileAud = directoryListing[5];
 					
 					//get video motion vector descriptor
 					int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(testFileVid);

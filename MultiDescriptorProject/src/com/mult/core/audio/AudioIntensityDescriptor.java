@@ -45,10 +45,13 @@ public class AudioIntensityDescriptor {
 			totalFramesRead += numFramesRead;
 		}
 
-		int[] windows = new int[500];
+		long[] windows = new long[500];
 		int windowCnt = 0;
 		int prevValue = 0;
-		int maxValue = Integer.MIN_VALUE;
+		
+		long maxValue = Long.MIN_VALUE;
+		long minValue = Long.MAX_VALUE;
+		
 		for (int byteItr = 0; byteItr < totalFramesRead * bytesPerFrame; byteItr++) {
 			int byteCnt = 0;
 			int valueAdded = 0;
@@ -63,23 +66,20 @@ public class AudioIntensityDescriptor {
 				byteCnt++;
 			}
 			// int diffValueAdded = Math.abs(prevValueAdded - valueAdded);
-			if (maxValue < valueAdded)
+			if (maxValue < valueAdded) {
 				maxValue = valueAdded;
+			}
+			
+			if (minValue > valueAdded) {
+				minValue = valueAdded;
+			}
 			windows[windowCnt] = valueAdded;
 			windowCnt++;
 			byteItr--;
 		}
 
-		int[] audioDescriptor = new int[windowCnt];
-		for (int windowItr = 0; windowItr < windowCnt; windowItr++) {
-
-			// int computedValue = Math.abs(prevValue - windows[windowItr]);
-			// //(int) Math.floor((windows[windowItr] / (double)maxValue) *
-			// 255);
-			audioDescriptor[windowItr] = (int) ((windows[windowItr] / (double) maxValue) * 255);
-			// prevValue = windows[windowItr];
-		}
-
+		int[] audioDescriptor = Utilities.getNormalizedDescriptorArray(windows, maxValue, minValue, 1);
+		
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 

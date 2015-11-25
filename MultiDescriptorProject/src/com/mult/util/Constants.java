@@ -19,6 +19,7 @@ public class Constants {
 			.getProperty("file.separator");
 	
 	
+	public static final int SEARCH_WINDOW_SIZE = 60;
 	
 	public static final String SERIALIZED_FILE_PATH = "C:" + FILE_PATH_SEPARATOR + "MultimediaData" +  FILE_PATH_SEPARATOR + "Database" + FILE_PATH_SEPARATOR;
 	public static final String SERIALIZED_FILE_PATH_TEST = "C:" + FILE_PATH_SEPARATOR + "MultimediaData" +  FILE_PATH_SEPARATOR + "TestData" + FILE_PATH_SEPARATOR;

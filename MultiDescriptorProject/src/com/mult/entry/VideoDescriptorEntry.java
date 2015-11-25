@@ -4,7 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -15,6 +18,7 @@ import javax.swing.SwingUtilities;
 
 import com.mult.core.video.MotionDescriptor;
 import com.mult.util.Constants;
+import com.mult.util.DescriptorBean;
 import com.mult.util.Utilities;
 import com.mult.util.VideoFrameBean;
 
@@ -43,11 +47,11 @@ public class VideoDescriptorEntry {
 
 		// currently only working on one video file, later do it for all files
 		// in directoryListings
-		File currFile = directoryListing[13];
+		File currFile = directoryListing[0];
 		System.out.println(currFile);
 
 		MotionDescriptor mObj = new MotionDescriptor();
-		//VideoDescriptorEntry thisObj = new VideoDescriptorEntry();
+		VideoDescriptorEntry thisObj = new VideoDescriptorEntry();
 
 		try {
 			// (1) Divide The Video into frames
@@ -90,12 +94,12 @@ public class VideoDescriptorEntry {
 			
 			frame.dispose();
 
-			/*// Actual Motion Vector Descriptor Code
-			int[] motionVectorDescriptorArray = new int[150];
+			// Actual Motion Vector Descriptor Code
 			long[] motionVectorLongArray = new long[150];
 			
 			thisObj.setVideoFrames(videoFrames);
 			long maxMotionVector = Long.MIN_VALUE;
+			long minMotionVector = Long.MAX_VALUE;
 
 			// display frame (current and previous) test - START
 			BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH,
@@ -125,15 +129,16 @@ public class VideoDescriptorEntry {
 			frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			// display frame (current and previous) test - END
 
-			// initialized for 1st frame
-			motionVectorDescriptorArray[0] = 0;
-
 			for (int frameItr = 1; frameItr < videoFrames.size(); frameItr++) {
 
 				long fMotionValue = thisObj.getFrameMotionValue(frameItr);
 				
 				if (maxMotionVector < fMotionValue) {
 					maxMotionVector = fMotionValue;
+				}
+				
+				if (minMotionVector > fMotionValue) {
+					minMotionVector = fMotionValue;
 				}
 				
 				motionVectorLongArray[frameItr] = fMotionValue;
@@ -161,11 +166,9 @@ public class VideoDescriptorEntry {
 				SwingUtilities.updateComponentTreeUI(frame2);
 				// test-code for displaying frame (current and previous) - END
 			}
-
-			for (int windowItr = 0; windowItr < motionVectorDescriptorArray.length; windowItr++) {
-				motionVectorDescriptorArray[windowItr] = (int) ((motionVectorLongArray[windowItr] / (double) maxMotionVector) * 255);
-			}
-
+			
+			int[] motionVectorDescriptorArray = Utilities.getNormalizedDescriptorArray(motionVectorLongArray, maxMotionVector, minMotionVector, 1); 
+			
 			Map<String, int[]> descriptorMap = new HashMap<String, int[]>();
 			//fileName -> arrayVal
 			descriptorMap.put(currFile.getAbsolutePath(), motionVectorDescriptorArray);
@@ -177,10 +180,10 @@ public class VideoDescriptorEntry {
 			descriptorObj.setFileName(currFile.getAbsolutePath());
 			descriptorObj.setDescriptorsList(descriptorsList);
 			
-			Utilities.serializeObject(descriptorObj, currFile.getName());
+			//Utilities.serializeObject(descriptorObj, currFile.getName());
 			
 			//Deserialize object
-			DescriptorBean descriptorBeanRead = (DescriptorBean) Utilities.deSerializeObject(currFile.getName());
+			/*DescriptorBean descriptorBeanRead = (DescriptorBean) Utilities.deSerializeObject(currFile.getName());
 			List<int[]> descriptorList = descriptorBeanRead.getDescriptorsList();
 			//get video descriptor for current video
 			int[] motionVectorDescriptorArraySer = descriptorList.get(0);
@@ -190,12 +193,11 @@ public class VideoDescriptorEntry {
 			//Sample from serialized file
 			BufferedImage vSerDescImage = Utilities
 					.createDescriptorImage(motionVectorDescriptorArraySer);
-			Utilities.displayImage(vSerDescImage, "VideoDescriptor");
+			Utilities.displayImage(vSerDescImage, "VideoDescriptor");*/
 			
 			BufferedImage vDescImage = Utilities
 					.createDescriptorImage(motionVectorDescriptorArray);
 			Utilities.displayImage(vDescImage, "VideoDescriptor");
-*/
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -227,15 +229,12 @@ public class VideoDescriptorEntry {
 				.generateVideoFrames(currFile);
 
 		// Actual Motion Vector Descriptor Code
-		int[] motionVectorDescriptorArray = new int[150];
 		long[] motionVectorLongArray = new long[150];
 		
 		setVideoFrames(videoFrames);
 		
 		long maxMotionVector = Long.MIN_VALUE;
-
-		// initialized for 1st frame
-		motionVectorDescriptorArray[0] = 0;
+		long minMotionVector = Long.MAX_VALUE;
 
 		for (int frameItr = 1; frameItr < videoFrames.size(); frameItr++) {
 
@@ -245,13 +244,15 @@ public class VideoDescriptorEntry {
 				maxMotionVector = fMotionValue;
 			}
 			
+			if (minMotionVector > fMotionValue) {
+				minMotionVector = fMotionValue;
+			}
+			
 			motionVectorLongArray[frameItr] = fMotionValue;
 		}
 
 		//Normalize values to 0-255
-		for (int windowItr = 0; windowItr < motionVectorDescriptorArray.length; windowItr++) {
-			motionVectorDescriptorArray[windowItr] = (int) ((motionVectorLongArray[windowItr] / (double) maxMotionVector) * 255);
-		}
+		int[] motionVectorDescriptorArray = Utilities.getNormalizedDescriptorArray(motionVectorLongArray, maxMotionVector, minMotionVector, 1);
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
@@ -292,13 +293,22 @@ public class VideoDescriptorEntry {
 		for (int[][] currentFrameBlock : currFrameBlocks) {
 
 			long currentBlockMinDiff = Long.MAX_VALUE;
-
+			int upVal = blockIndexHeight - Constants.SEARCH_WINDOW_SIZE;
+			int downVal = blockIndexHeight + Constants.SEARCH_WINDOW_SIZE;
+			
+			int leftVal = blockIndexWidth - Constants.SEARCH_WINDOW_SIZE;
+			int rightVal = blockIndexWidth + Constants.SEARCH_WINDOW_SIZE;
+			
+			int hItrStart = upVal < 0 ? 0 : upVal;
+			int hItrEnd = downVal > Constants.HEIGHT ? Constants.HEIGHT : downVal;
+			
+			int wItrStart = leftVal < 0 ? 0 : leftVal;
+			int wItrEnd = rightVal > Constants.WIDTH ? Constants.WIDTH : rightVal;
+			
 			// Loop over previous full frame
-			for (int hItr = 0; hItr < Constants.HEIGHT
-					- Constants.MACRO_BLOCK_SIZE; hItr++) {
+			for (int hItr = hItrStart; hItr < hItrEnd - Constants.MACRO_BLOCK_SIZE; hItr++) {
 				
-				for (int wItr = 0; wItr < Constants.WIDTH
-						- Constants.MACRO_BLOCK_SIZE; wItr++) {
+				for (int wItr = wItrStart; wItr < wItrEnd - Constants.MACRO_BLOCK_SIZE; wItr++) {
 
 					// initialized sum
 					long cumulativeSum = 0;
@@ -307,12 +317,10 @@ public class VideoDescriptorEntry {
 					int currFrameHeight = 0;
 					int currFrameWidth = 0;
 
-					for (int prevFrameHItr = hItr; prevFrameHItr < hItr
-							+ Constants.MACRO_BLOCK_SIZE; prevFrameHItr++) {
+					for (int prevFrameHItr = hItr; prevFrameHItr < hItr + Constants.MACRO_BLOCK_SIZE; prevFrameHItr++) {
 						
 						currFrameWidth = 0;
-						for (int prevFrameWItr = wItr; prevFrameWItr < wItr
-								+ Constants.MACRO_BLOCK_SIZE; prevFrameWItr++) {
+						for (int prevFrameWItr = wItr; prevFrameWItr < wItr + Constants.MACRO_BLOCK_SIZE; prevFrameWItr++) {
 							
 							long pixDiff = Math
 									.abs(currentFrameBlock[currFrameHeight][currFrameWidth]
@@ -348,8 +356,7 @@ public class VideoDescriptorEntry {
 			finalMotionValue += (dx + dy);
 
 			blockCount++;
-			if (blockCount
-					% ((int) Constants.WIDTH / Constants.MACRO_BLOCK_SIZE) == 0) {
+			if (blockCount % ((int) Constants.WIDTH / Constants.MACRO_BLOCK_SIZE) == 0) {
 				blockIndexWidth = 0;
 				blockIndexHeight += Constants.MACRO_BLOCK_SIZE;
 			} else {

@@ -91,7 +91,6 @@ public class ColorDescriptor {
 			frame.dispose();
 
 			// Actual Motion Vector Descriptor Code
-			int[] colorDescriptorArray = new int[150];
 			long[] colorLongArray = new long[150];
 
 			thisObj.setVideoFrames(videoFrames);
@@ -125,6 +124,8 @@ public class ColorDescriptor {
 			// display frame (current and previous) test - END
 
 			long maxColorValue = Integer.MIN_VALUE;
+			long minColorValue = Integer.MAX_VALUE;
+			
 			for (int frameItr = 0; frameItr < videoFrames.size(); frameItr++) {
 
 				long fColorValue = thisObj.getFrameColorValue(frameItr);
@@ -132,16 +133,20 @@ public class ColorDescriptor {
 				if (maxColorValue < fColorValue) {
 					maxColorValue = fColorValue;
 				}
+				
+				if (minColorValue > fColorValue) {
+					minColorValue = fColorValue;
+				}
+				
 				colorLongArray[frameItr] = fColorValue;
 
 				System.out.println(fColorValue);
 
 			}
 
-			for (int windowItr = 0; windowItr < colorDescriptorArray.length; windowItr++) {
-				colorDescriptorArray[windowItr] = (int) ((colorLongArray[windowItr] / (double) maxColorValue) * 255);
-			}
-
+			//Normalize value
+			int[] colorDescriptorArray = Utilities.getNormalizedDescriptorArray(colorLongArray, maxColorValue, minColorValue, 0);
+			
 			BufferedImage vDescImage = Utilities
 					.createDescriptorImage(colorDescriptorArray);
 			Utilities.displayImage(vDescImage, "VideoDescriptor");
