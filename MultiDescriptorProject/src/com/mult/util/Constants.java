@@ -27,6 +27,11 @@ public class Constants {
 	public static final int HEIGHT = 180;
 	public static final int MACRO_BLOCK_SIZE = 15;
 	
+	
+	public static final double VIDEO_WEIGHT = 0.2;
+	public static final double AUDIO_WEIGHT = 0.5;
+	public static final double COLOR_WEIGHT = 0.3;
+	
 	public static final String VIDEO_PATH_VISHAL_PC = "C:" + FILE_PATH_SEPARATOR + "Data"
 			+ FILE_PATH_SEPARATOR + "imp-Data" + FILE_PATH_SEPARATOR
 			+ "USC Data" + FILE_PATH_SEPARATOR + "Courses-Fall 2015"
@@ -56,6 +61,11 @@ public class Constants {
 			+ "USC Data" + FILE_PATH_SEPARATOR + "Courses-Fall 2015"
 			+ FILE_PATH_SEPARATOR + "CSCI576-Multimedia System Design"
 			+ FILE_PATH_SEPARATOR + "Final-Project" + FILE_PATH_SEPARATOR
+			+ "Testing Fall 2015";
+	
+	public static final String TEST_PATH_SANMUKH_PC = "F:" + FILE_PATH_SEPARATOR + "Fall '15"
+			+ FILE_PATH_SEPARATOR + "CS 576" + FILE_PATH_SEPARATOR
+			+ "Final Project" + FILE_PATH_SEPARATOR 
 			+ "Testing Fall 2015";
 	
 }

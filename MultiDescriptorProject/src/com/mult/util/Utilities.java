@@ -7,6 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -143,14 +148,23 @@ public class Utilities {
 	public static void bestMatchDecriptorToDb(DescriptorBean descriptorObj) throws ClassNotFoundException, IOException {
 		File serializedDir = new File(Constants.SERIALIZED_FILE_PATH);
 		File[] serFiles = serializedDir.listFiles();
-		
+		HashMap<Integer, List<DifferenceBean>> diffMap = new HashMap<Integer, List<DifferenceBean>>();
 		List<int[]> testDescriptors = descriptorObj.getDescriptorsList();
 		int[] motionDescriptorTest = testDescriptors.get(0);
 		int[] audioDescriptorTest = testDescriptors.get(1);
 		int[] colorDescriptorTest = testDescriptors.get(2);
 		
-		int cumulativeDiffValue = Integer.MAX_VALUE;
+		double cumulativeDiffValue = Double.MAX_VALUE;
 		String bestMatchedFileName = "";
+		
+		
+		List<DifferenceBean> result = new ArrayList<DifferenceBean>();
+		
+		for(int itr = 0; itr < 7; itr++)
+		{
+			List<DifferenceBean> newList = new ArrayList<DifferenceBean>();
+			diffMap.put(itr, newList);
+		}
 		
 		for (int serFilesItr = 0; serFilesItr < serFiles.length; serFilesItr++) {
 			File currSerFile = serFiles[serFilesItr];
@@ -197,22 +211,46 @@ public class Utilities {
 			//int[] motionDescTemp = motionDescirptor.clone();
 			//motionDescTemp[20] = 20;
 			
-			int currMotionMinDiff = getDescriptorDifference(motionDescriptorTest, motionDescirptor);
-			int currAudioMinDiff = getDescriptorDifference(audioDescriptorTest, audioDescirptor);
-			int currColorMinDiff = getDescriptorDifference(colorDescriptorTest, colorDescriptor);
+			int currMotionDiff = getDescriptorDifference(motionDescriptorTest, motionDescirptor);
+			int currAudioDiff = getDescriptorDifference(audioDescriptorTest, audioDescirptor);
+			int currColorDiff = getDescriptorDifference(colorDescriptorTest, colorDescriptor);
 			
-			int currMinDiff = currMotionMinDiff + currAudioMinDiff + currColorMinDiff;
-			System.out.println(" motion: " + currMotionMinDiff + " audio: " + currAudioMinDiff + " color: " + currColorMinDiff);
-			System.out.println("Current Min value: " + currMinDiff);
+			
+			
+			double currDiff = (Constants.VIDEO_WEIGHT * currMotionDiff) + (Constants.AUDIO_WEIGHT* currAudioDiff) + (Constants.COLOR_WEIGHT *  currColorDiff);
+			DifferenceBean diffBean = new DifferenceBean();
+			diffBean.name = currSerFile.getName();
+			diffBean.value = currDiff;
+			
+			System.out.println(" motion: " + currMotionDiff + " audio: " + currAudioDiff + " color: " + currColorDiff);
+			System.out.println("Current Min value: " + currDiff);
 			System.out.println("#####################################################################");
 			
-			if (cumulativeDiffValue > currMinDiff) {
-				cumulativeDiffValue = currMinDiff;
+			result.add(diffBean);
+			
+			if (cumulativeDiffValue > currDiff) {
+				cumulativeDiffValue = currDiff;
 				bestMatchedFileName = currSerFile.getName();
 			}
 		}
 		
-		System.out.println(descriptorObj.getFileName() + " : Best Matched to : " + bestMatchedFileName);
+		Collections.sort(result, new Comparator<DifferenceBean>(){
+
+			@Override
+			public int compare(DifferenceBean arg0, DifferenceBean arg1) {
+				// TODO Auto-generated method stub
+				return Double.compare(arg0.value, arg1.value);
+			}
+			
+		});
+		
+		System.out.println("Matched videos ranked from best match to worst match : ");
+		for (Iterator<DifferenceBean> iterator = result.iterator(); iterator.hasNext();) {
+			DifferenceBean differenceBean = (DifferenceBean) iterator.next();
+			System.out.println(differenceBean.name);
+		}
+		
+		//System.out.println(descriptorObj.getFileName() + " : Best Matched to : " + bestMatchedFileName);
 		
 	}
 	

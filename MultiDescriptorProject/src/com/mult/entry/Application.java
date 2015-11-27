@@ -33,11 +33,11 @@ public class Application {
 					Utilities.trace("Create Database Mode");
 					Utilities.trace("***** ***** ***** ***** ******");
 					//Get Video Directory
-					File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
+					File dirVideo = new File(Constants.VIDEO_PATH_SANMUKH_PC);
 					File[] directoryListingVid = dirVideo.listFiles();
 					
 					//Get Audio Directory
-					File dirAudio = new File(Constants.AUDIO_PATH_VISHAL_PC);
+					File dirAudio = new File(Constants.AUDIO_PATH_SANMUKH_PC);
 					File[] directoryListingAud = dirAudio.listFiles();
 					
 					if (directoryListingVid.length != directoryListingAud.length) {
@@ -74,12 +74,12 @@ public class Application {
 				} else {
 					Utilities.trace("Comparison mode, for test video");
 					
-					File dirVideo = new File(Constants.TEST_PATH_VISHAL_PC);
+					File dirVideo = new File(Constants.TEST_PATH_SANMUKH_PC);
 					File[] directoryListing = dirVideo.listFiles();
 					
 					//Taking first 2 test files, which are for same file, audio and video files
-					File testFileVid = directoryListing[4];
-					File testFileAud = directoryListing[5];
+					File testFileVid = directoryListing[2];
+					File testFileAud = directoryListing[3];
 					
 					//get video motion vector descriptor
 					int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(testFileVid);
