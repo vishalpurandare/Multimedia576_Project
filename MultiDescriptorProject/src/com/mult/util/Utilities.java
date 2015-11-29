@@ -1,5 +1,8 @@
 package com.mult.util;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,10 +17,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 public class Utilities {
 
@@ -154,7 +164,7 @@ public class Utilities {
 		*/		
 	}
 	
-	public static void bestMatchDecriptorToDb(DescriptorBean descriptorObj) throws ClassNotFoundException, IOException {
+	public static List<DifferenceBean> bestMatchDecriptorToDb(DescriptorBean descriptorObj) throws ClassNotFoundException, IOException {
 		File serializedDir = new File(Constants.SERIALIZED_FILE_PATH);
 		File[] serFiles = serializedDir.listFiles();
 		HashMap<Integer, List<DifferenceBean>> diffMap = new HashMap<Integer, List<DifferenceBean>>();
@@ -221,12 +231,10 @@ public class Utilities {
 			int currAudioDiff = getDescriptorDifference(audioDescriptorTest, audioDescirptor);
 			int currColorDiff = getDescriptorDifference(colorDescriptorTest, colorDescriptor);
 			
-			
-			
 			double currDiff = (Constants.VIDEO_WEIGHT * currMotionDiff) + (Constants.AUDIO_WEIGHT* currAudioDiff) + (Constants.COLOR_WEIGHT *  currColorDiff);
 			DifferenceBean diffBean = new DifferenceBean();
-			diffBean.name = currSerFile.getName();
-			diffBean.value = currDiff;
+			diffBean.setName( currSerFile.getName());
+			diffBean.setValue(currDiff);
 			
 			System.out.println(" motion: " + currMotionDiff + " audio: " + currAudioDiff + " color: " + currColorDiff);
 			System.out.println("Current Min value: " + currDiff);
@@ -244,17 +252,19 @@ public class Utilities {
 			@Override
 			public int compare(DifferenceBean arg0, DifferenceBean arg1) {
 				// TODO Auto-generated method stub
-				return Double.compare(arg0.value, arg1.value);
+				return Double.compare(arg0.getValue(), arg1.getValue());
 			}
 			
 		});
 		
 		System.out.println("Matched videos ranked from best match to worst match : ");
+		
 		for (Iterator<DifferenceBean> iterator = result.iterator(); iterator.hasNext();) {
 			DifferenceBean differenceBean = (DifferenceBean) iterator.next();
-			System.out.println(differenceBean.name);
+			System.out.println(differenceBean.getName());
 		}
 		
+		return result;
 		//System.out.println(descriptorObj.getFileName() + " : Best Matched to : " + bestMatchedFileName);
 		
 	}
@@ -280,6 +290,54 @@ public class Utilities {
 			descriptorArray[windowItr] = (int) (((currLongArr[windowItr] - minValue) / (double) (maxValue - minValue)) * 255);
 		}
 		return descriptorArray;
+	}
+	
+
+	public static void createUIBestBean(DifferenceBean bestBean, JPanel barCodePanel, JFrame frameMain) throws ClassNotFoundException, IOException {
+		DescriptorBean bestObj = (DescriptorBean) deSerializeObject(bestBean.getName(), false);
+		
+		List<int[]> descList = bestObj.getDescriptorsList();
+		
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new GridLayout(0, 1));
+		BufferedImage vDescImage = Utilities.createDescriptorImage(descList.get(0));
+		JPanel panel1 = new JPanel();
+		JComponent comp1 = new JLabel(new ImageIcon(vDescImage));
+		panel1.add(comp1);
+		UIManager.getDefaults().put("TitledBorder.titleColor", Color.BLACK);
+	    Border lowerEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+	    TitledBorder title = BorderFactory.createTitledBorder(lowerEtched, "Motion Descriptor");
+	    Font titleFont = UIManager.getFont("TitledBorder.font");
+        title.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+        panel1.setBorder(title);
+        
+        BufferedImage aDescImage = Utilities.createDescriptorImage(descList.get(1));
+		JPanel panel2 = new JPanel();
+		JComponent comp2 = new JLabel(new ImageIcon(aDescImage));
+		panel2.add(comp2);
+	    TitledBorder title2 = BorderFactory.createTitledBorder(lowerEtched, "Audio Descriptor");
+        title2.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+        panel2.setBorder(title2);
+        
+        BufferedImage cDescImage = Utilities.createDescriptorImage(descList.get(2));
+		JPanel panel3 = new JPanel();
+		JComponent comp3 = new JLabel(new ImageIcon(cDescImage));
+		panel3.add(comp3);
+	    TitledBorder title3 = BorderFactory.createTitledBorder(lowerEtched, "Color Descriptor");
+        title3.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+        panel3.setBorder(title3);
+        
+	    TitledBorder titleMain = BorderFactory.createTitledBorder(lowerEtched, "Descriptors of best Matched file");
+	    titleMain.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	    mainPanel.setBorder(titleMain);
+	    
+        mainPanel.add(panel1);
+        mainPanel.add(panel2);
+        mainPanel.add(panel3);
+        
+		barCodePanel.add(mainPanel);
+		SwingUtilities.updateComponentTreeUI(frameMain);
+		
 	}
 	
 	public static void trace(String msg) {

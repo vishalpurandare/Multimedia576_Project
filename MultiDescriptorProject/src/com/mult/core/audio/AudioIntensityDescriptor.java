@@ -1,18 +1,32 @@
 package com.mult.core.audio;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import com.mult.util.Constants;
 import com.mult.util.Utilities;
 
 public class AudioIntensityDescriptor {
 
-	public int[] getAudioDescriptor(File currFile)
+	public int[] getAudioDescriptor(File currFile, JPanel barCodePanel, JFrame frameMain)
 			throws UnsupportedAudioFileException, IOException {
 
 		long startTime = System.currentTimeMillis();
@@ -79,6 +93,24 @@ public class AudioIntensityDescriptor {
 		}
 
 		int[] audioDescriptor = Utilities.getNormalizedDescriptorArray(windows, maxValue, minValue, 1);
+		
+		//Display Bar code
+		if (frameMain != null) {
+			BufferedImage aDescImage = Utilities.createDescriptorImage(audioDescriptor);
+			
+			JPanel panel1 = new JPanel();
+			JComponent comp1 = new JLabel(new ImageIcon(aDescImage));
+			panel1.add(comp1);
+			UIManager.getDefaults().put("TitledBorder.titleColor", Color.BLACK);
+		    Border lowerEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		    TitledBorder title = BorderFactory.createTitledBorder(lowerEtched, "Audio Descriptor");
+		    Font titleFont = UIManager.getFont("TitledBorder.font");
+	        title.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        panel1.setBorder(title);
+	        
+			barCodePanel.add(panel1);
+			SwingUtilities.updateComponentTreeUI(frameMain);
+		}
 		
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;

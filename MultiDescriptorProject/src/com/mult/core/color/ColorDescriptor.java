@@ -1,18 +1,24 @@
 package com.mult.core.color;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import com.mult.core.video.MotionDescriptor;
 import com.mult.util.Constants;
@@ -169,7 +175,7 @@ public class ColorDescriptor {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public int[] getColorDescriptor(File currFile)
+	public int[] getColorDescriptor(File currFile,  JPanel barCodePanel, JFrame frameMain)
 			throws IOException, InterruptedException {
 		
 		long startTime = System.currentTimeMillis();
@@ -205,6 +211,25 @@ public class ColorDescriptor {
 			colorDescriptorArray[windowItr] = (int) ((colorLongArray[windowItr] / (double) maxColorValue) * 255);
 		}
 
+		
+		//Display Bar code
+		if (frameMain != null) {
+			BufferedImage aDescImage = Utilities.createDescriptorImage(colorDescriptorArray);
+			
+			JPanel panel1 = new JPanel();
+			JComponent comp1 = new JLabel(new ImageIcon(aDescImage));
+			panel1.add(comp1);
+			UIManager.getDefaults().put("TitledBorder.titleColor", Color.BLACK);
+		    Border lowerEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		    TitledBorder title = BorderFactory.createTitledBorder(lowerEtched, "Color Intensity Descriptor");
+		    Font titleFont = UIManager.getFont("TitledBorder.font");
+	        title.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        panel1.setBorder(title);
+	        
+			barCodePanel.add(panel1);
+			SwingUtilities.updateComponentTreeUI(frameMain);
+		}
+		
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 

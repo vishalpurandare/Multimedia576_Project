@@ -1,5 +1,9 @@
 package com.mult.entry;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,12 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import com.mult.core.video.MotionDescriptor;
 import com.mult.util.Constants;
@@ -33,7 +42,7 @@ public class VideoDescriptorEntry {
 	public void setVideoFrames(List<VideoFrameBean> videoFrames) {
 		this.videoFrames = videoFrames;
 	}
-
+	
 	/**
 	 * main method
 	 * used to testing video motion vector descriptor
@@ -42,12 +51,12 @@ public class VideoDescriptorEntry {
 	public static void main(String[] args) {
 
 		//File dirVideo = new File("C:\\Data\\imp-Data\\USC Data\\Courses-Fall 2015\\CSCI576-Multimedia System Design\\Final-Project\\Testing Fall 2015");
-		File dirVideo = new File(Constants.VIDEO_PATH_PC);
+		File dirVideo = new File(Constants.TEST_PATH_PC);
 		File[] directoryListing = dirVideo.listFiles();
 
 		// currently only working on one video file, later do it for all files
 		// in directoryListings
-		File currFile = directoryListing[0];
+		File currFile = directoryListing[2];
 		System.out.println(currFile);
 
 		MotionDescriptor mObj = new MotionDescriptor();
@@ -62,7 +71,8 @@ public class VideoDescriptorEntry {
 			Utilities
 					.trace("Number of Frames processed: " + videoFrames.size());
 
-			BufferedImage img = new BufferedImage(Constants.WIDTH,
+			/*
+			 * BufferedImage img = new BufferedImage(Constants.WIDTH,
 					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
 			JPanel panel = new JPanel();
@@ -74,7 +84,7 @@ public class VideoDescriptorEntry {
 			frame.setLocation(300, 200);
 			frame.setVisible(true);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+			
 			for (VideoFrameBean videoFrame : videoFrames) {
 				int[][] framePixels = videoFrame.getFramePixels();
 
@@ -93,7 +103,8 @@ public class VideoDescriptorEntry {
 			// test-code ends
 			
 			frame.dispose();
-
+			*/
+			
 			// Actual Motion Vector Descriptor Code
 			long[] motionVectorLongArray = new long[150];
 			
@@ -107,28 +118,60 @@ public class VideoDescriptorEntry {
 
 			BufferedImage currFrameImg = new BufferedImage(Constants.WIDTH,
 					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
-
+			
+			JFrame frameMain = new JFrame("Video Descriptor Demo");
+			frameMain.setLayout(new FlowLayout());
+			
+			JPanel motionVectorPanel = new JPanel();
+			motionVectorPanel.setLayout(new FlowLayout());
+			
 			JPanel panel1 = new JPanel();
 			JComponent comp1 = new JLabel(new ImageIcon(prevFrameImg));
 			panel1.add(comp1);
-			JFrame frame1 = new JFrame("Previous Frame");
-			frame1.getContentPane().add(panel1);
-			frame1.pack();
-			frame1.setLocation(600, 200);
-			frame1.setVisible(true);
-			frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+			panel1.setToolTipText("Previous Frame");
+			UIManager.getDefaults().put("TitledBorder.titleColor", Color.BLACK);
+		    Border lowerEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		    TitledBorder title = BorderFactory.createTitledBorder(lowerEtched, " Previous Frame ");
+		    Font titleFont = UIManager.getFont("TitledBorder.font");
+	        title.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        panel1.setBorder(title);
+			
 			JPanel panel2 = new JPanel();
 			JComponent comp2 = new JLabel(new ImageIcon(currFrameImg));
 			panel2.add(comp2);
-			JFrame frame2 = new JFrame("Current Frame");
-			frame2.getContentPane().add(panel2);
-			frame2.pack();
-			frame2.setLocation(900, 200);
-			frame2.setVisible(true);
-			frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			// display frame (current and previous) test - END
+			panel2.setToolTipText("Current Frame");
+		    TitledBorder title2 = BorderFactory.createTitledBorder(lowerEtched, " Current Frame ");
+	        title2.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        panel2.setBorder(title2);
 
+			JPanel panel3 = new JPanel();
+			JLabel comp3 = new JLabel(String.valueOf(0));
+			panel3.add(comp3);
+			panel3.setPreferredSize(new Dimension(240, 50));
+			panel3.setToolTipText("Motion Vector for Frame");
+		    TitledBorder title3 = BorderFactory.createTitledBorder(lowerEtched, " Motion Vector value for Frame ");
+	        title3.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        panel3.setBorder(title3);
+	        
+	        TitledBorder motionTitle = BorderFactory.createTitledBorder(lowerEtched, " Descriptor based on Motion Vector ");
+	        motionTitle.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        motionVectorPanel.setBorder(motionTitle);
+	        
+	        motionVectorPanel.add(panel1);
+	        motionVectorPanel.add(panel2);
+	        motionVectorPanel.add(panel3);
+	        
+			frameMain.add(motionVectorPanel);
+			//frameMain.add(panel2);
+			//frameMain.add(panel3);
+			
+			frameMain.pack();
+			frameMain.setLocation(100, 100);
+			frameMain.setVisible(true);
+			frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			// display frame (current and previous) test - END
+			
 			for (int frameItr = 1; frameItr < videoFrames.size(); frameItr++) {
 
 				long fMotionValue = thisObj.getFrameMotionValue(frameItr);
@@ -143,7 +186,8 @@ public class VideoDescriptorEntry {
 				
 				motionVectorLongArray[frameItr] = fMotionValue;
 				System.out.println(fMotionValue);
-
+				
+				comp3.setText(String.valueOf(fMotionValue));
 				// test-code for displaying frame (current and previous) - START
 				VideoFrameBean prevFrame = videoFrames.get(frameItr - 1);
 				int[][] prevFramePixels = prevFrame.getFramePixels();
@@ -153,8 +197,7 @@ public class VideoDescriptorEntry {
 						prevFrameImg.setRGB(x, y, prevFramePixels[y][x]);
 					}
 				}
-				SwingUtilities.updateComponentTreeUI(frame1);
-
+				
 				VideoFrameBean currFrame = videoFrames.get(frameItr);
 				int[][] currFramePixels = currFrame.getFramePixels();
 				
@@ -163,7 +206,7 @@ public class VideoDescriptorEntry {
 						currFrameImg.setRGB(x, y, currFramePixels[y][x]);
 					}
 				}
-				SwingUtilities.updateComponentTreeUI(frame2);
+				SwingUtilities.updateComponentTreeUI(frameMain);
 				// test-code for displaying frame (current and previous) - END
 			}
 			
@@ -215,7 +258,7 @@ public class VideoDescriptorEntry {
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	public int[] getVideoMotionVectorDescriptor(File currFile) throws IOException, InterruptedException {
+	public int[] getVideoMotionVectorDescriptor(File currFile, BufferedImage prevFrameImg, BufferedImage currFrameImg,JLabel motionValueComp,  JPanel barCodePanel, JFrame frameMain) throws IOException, InterruptedException {
 		
 		long startTime = System.currentTimeMillis();
 		
@@ -248,7 +291,35 @@ public class VideoDescriptorEntry {
 				minMotionVector = fMotionValue;
 			}
 			
+			//UI- Display
+			if (frameMain != null) {
+				
+				motionValueComp.setText(String.valueOf(fMotionValue));
+				
+				// test-code for displaying frame (current and previous) - START
+				VideoFrameBean prevFrame = videoFrames.get(frameItr - 1);
+				int[][] prevFramePixels = prevFrame.getFramePixels();
+				
+				for (int y = 0; y < Constants.HEIGHT; y++) {
+					for (int x = 0; x < Constants.WIDTH; x++) {
+						prevFrameImg.setRGB(x, y, prevFramePixels[y][x]);
+					}
+				}
+				
+				VideoFrameBean currFrame = videoFrames.get(frameItr);
+				int[][] currFramePixels = currFrame.getFramePixels();
+				
+				for (int y = 0; y < Constants.HEIGHT; y++) {
+					for (int x = 0; x < Constants.WIDTH; x++) {
+						currFrameImg.setRGB(x, y, currFramePixels[y][x]);
+					}
+				}
+				SwingUtilities.updateComponentTreeUI(frameMain);
+				// test-code for displaying frame (current and previous) - END
+			}
+			
 			motionVectorLongArray[frameItr] = fMotionValue;
+			
 		}
 
 		//Normalize values to 0-255
@@ -256,6 +327,27 @@ public class VideoDescriptorEntry {
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
+		
+		//UI- Display
+		if (frameMain != null) {
+			//Display Bar Code
+			BufferedImage vDescImage = Utilities.createDescriptorImage(motionVectorDescriptorArray);
+			
+			JPanel panel1 = new JPanel();
+			JComponent comp1 = new JLabel(new ImageIcon(vDescImage));
+			panel1.add(comp1);
+			panel1.setToolTipText("Motion Bar Code");
+			UIManager.getDefaults().put("TitledBorder.titleColor", Color.BLACK);
+		    Border lowerEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		    TitledBorder title = BorderFactory.createTitledBorder(lowerEtched, " Motion Descriptor ");
+		    Font titleFont = UIManager.getFont("TitledBorder.font");
+	        title.setTitleFont( titleFont.deriveFont(Font.BOLD) );
+	        panel1.setBorder(title);
+	        
+			barCodePanel.add(panel1);
+			SwingUtilities.updateComponentTreeUI(frameMain);
+		}
+		
 		
 		Utilities.trace("Total Time required: " + totalTime + " MS " + totalTime/(1000*60) + " Minutes");
 		Utilities.trace("Processing File: END " + currFile.getName() );
