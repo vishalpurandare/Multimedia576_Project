@@ -93,14 +93,24 @@ public class Utilities {
 	public static int getDescriptorDifference(int[] desc1, int[] desc2) {
 		
 		int meanErrorValue = 0;
-		
-		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++) {
-			int diffVal = Math.abs(desc1[descItr1] - desc2[descItr1]);
+		int descValue1 = 0;
+		int descValue2 = 0;
+		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES - 1 ; descItr1++) {
+		/*	int diffVal = Math.abs(desc1[descItr1] - desc2[descItr1]);
 			int squareVal = diffVal * diffVal;
 			meanErrorValue += squareVal;
+	
+		*/
+			
+			descValue1 += Math.abs(desc1[descItr1+1] - desc1[descItr1]);
 		}
+		
+		for (int descItr2 = 0; descItr2 < Constants.NO_OF_FRAMES - 1; descItr2++) {
+		descValue2 += Math.abs(desc2[descItr2+1] - desc2[descItr2]);
+	}
 
-		return (int) (meanErrorValue / Constants.NO_OF_FRAMES);
+		return Math.abs(descValue1 - descValue2); 
+		//return (int) (meanErrorValue / Constants.NO_OF_FRAMES);
 		
 		/*
 		int diffValTot = 0;
@@ -258,7 +268,7 @@ public class Utilities {
 		try {
 			//String testFileName = "drama_test.rgb.ser"; // best matched to sports3.v576.rgb.ser, run again for ranks
 			//String testFileName = "interview_test.rgb.ser"; // best matched to interview3.v576.rgb.ser, run again for ranks
-			String testFileName = "sports_test.rgb.ser"; // best matched to commercial1.v576.rgb.ser, run again for ranks
+			String testFileName = "drama_test.rgb.ser"; // best matched to commercial1.v576.rgb.ser, run again for ranks
 			
 			DescriptorBean testObj = (DescriptorBean) deSerializeObject(testFileName, true);
 			bestMatchDecriptorToDb(testObj);

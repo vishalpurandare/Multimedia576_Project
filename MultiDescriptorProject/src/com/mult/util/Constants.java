@@ -28,9 +28,9 @@ public class Constants {
 	public static final int MACRO_BLOCK_SIZE = 15;
 	
 	
-	public static final double VIDEO_WEIGHT = 0.2;
-	public static final double AUDIO_WEIGHT = 0.5;
-	public static final double COLOR_WEIGHT = 0.3;
+	public static final double VIDEO_WEIGHT = 1;
+	public static final double AUDIO_WEIGHT = 1;
+	public static final double COLOR_WEIGHT = 1;
 	
 	public static final String VIDEO_PATH_VISHAL_PC = "C:" + FILE_PATH_SEPARATOR + "Data"
 			+ FILE_PATH_SEPARATOR + "imp-Data" + FILE_PATH_SEPARATOR
