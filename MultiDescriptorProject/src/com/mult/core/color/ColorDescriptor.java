@@ -38,7 +38,7 @@ public class ColorDescriptor {
 	 */
 	public static void main(String[] arg) {
 
-		File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
+		File dirVideo = new File(Constants.VIDEO_PATH_PC);
 		File[] directoryListing = dirVideo.listFiles();
 
 		// currently only working on one video file, later do it for all files

@@ -92,7 +92,6 @@ public class Utilities {
 	 */
 	public static int getDescriptorDifference(int[] desc1, int[] desc2) {
 		
-		int meanErrorValue = 0;
 		int descValue1 = 0;
 		int descValue2 = 0;
 		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES - 1 ; descItr1++) {
@@ -106,8 +105,8 @@ public class Utilities {
 		}
 		
 		for (int descItr2 = 0; descItr2 < Constants.NO_OF_FRAMES - 1; descItr2++) {
-		descValue2 += Math.abs(desc2[descItr2+1] - desc2[descItr2]);
-	}
+			descValue2 += Math.abs(desc2[descItr2+1] - desc2[descItr2]);
+		}
 
 		return Math.abs(descValue1 - descValue2); 
 		//return (int) (meanErrorValue / Constants.NO_OF_FRAMES);
@@ -165,13 +164,10 @@ public class Utilities {
 		int[] colorDescriptorTest = testDescriptors.get(2);
 		
 		double cumulativeDiffValue = Double.MAX_VALUE;
-		String bestMatchedFileName = "";
-		
 		
 		List<DifferenceBean> result = new ArrayList<DifferenceBean>();
 		
-		for(int itr = 0; itr < 7; itr++)
-		{
+		for(int itr = 0; itr < 7; itr++) {
 			List<DifferenceBean> newList = new ArrayList<DifferenceBean>();
 			diffMap.put(itr, newList);
 		}
@@ -240,7 +236,6 @@ public class Utilities {
 			
 			if (cumulativeDiffValue > currDiff) {
 				cumulativeDiffValue = currDiff;
-				bestMatchedFileName = currSerFile.getName();
 			}
 		}
 		
@@ -266,9 +261,9 @@ public class Utilities {
 	
 	public static void main(String[] arg) {
 		try {
-			//String testFileName = "drama_test.rgb.ser"; // best matched to sports3.v576.rgb.ser, run again for ranks
+			String testFileName = "sports_test.rgb.ser"; // best matched to sports3.v576.rgb.ser, run again for ranks
 			//String testFileName = "interview_test.rgb.ser"; // best matched to interview3.v576.rgb.ser, run again for ranks
-			String testFileName = "drama_test.rgb.ser"; // best matched to commercial1.v576.rgb.ser, run again for ranks
+			//String testFileName = "drama_test.rgb.ser"; // best matched to commercial1.v576.rgb.ser, run again for ranks
 			
 			DescriptorBean testObj = (DescriptorBean) deSerializeObject(testFileName, true);
 			bestMatchDecriptorToDb(testObj);

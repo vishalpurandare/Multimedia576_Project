@@ -42,7 +42,7 @@ public class VideoDescriptorEntry {
 	public static void main(String[] args) {
 
 		//File dirVideo = new File("C:\\Data\\imp-Data\\USC Data\\Courses-Fall 2015\\CSCI576-Multimedia System Design\\Final-Project\\Testing Fall 2015");
-		File dirVideo = new File(Constants.VIDEO_PATH_VISHAL_PC);
+		File dirVideo = new File(Constants.VIDEO_PATH_PC);
 		File[] directoryListing = dirVideo.listFiles();
 
 		// currently only working on one video file, later do it for all files
