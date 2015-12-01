@@ -100,8 +100,8 @@ public class Application {
 					File[] directoryListing = dirVideo.listFiles();
 					
 					//Taking first 2 test files, which are for same file, audio and video files
-					File testFileVid = directoryListing[4];
-					File testFileAud = directoryListing[5];
+					File testFileVid = directoryListing[2];
+					File testFileAud = directoryListing[3];
 					
 					// display frame (current and previous) test - START
 					BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH,

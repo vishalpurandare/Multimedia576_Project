@@ -56,7 +56,7 @@ public class VideoDescriptorEntry {
 
 		// currently only working on one video file, later do it for all files
 		// in directoryListings
-		File currFile = directoryListing[11];
+		File currFile = directoryListing[9];
 		System.out.println(currFile);
 
 		MotionDescriptor mObj = new MotionDescriptor();
@@ -221,7 +221,7 @@ public class VideoDescriptorEntry {
 			descriptorObj.setFileName(currFile.getAbsolutePath());
 			descriptorObj.setDescriptorsList(descriptorsList);
 			
-			//Utilities.serializeObject(descriptorObj, currFile.getName());
+			Utilities.serializeObject(descriptorObj, currFile.getName(), false);
 			
 			//Deserialize object
 			/*DescriptorBean descriptorBeanRead = (DescriptorBean) Utilities.deSerializeObject(currFile.getName());
@@ -370,6 +370,7 @@ public class VideoDescriptorEntry {
 		VideoFrameBean currentFrame = videoFrames.get(frameItr);
 
 		int[][] prevFramePixels = previousFrame.getFramePixels();
+		
 		List<int[][]> currFrameBlocks = currentFrame.getPixMacroBlocks();
 		
 		int matchedHeight = 0;
@@ -381,7 +382,21 @@ public class VideoDescriptorEntry {
 
 		// Loop over all the blocks of current frame
 		for (int[][] currentFrameBlock : currFrameBlocks) {
-
+			
+			long initialSum = 0;
+			for (int hFItr = 0; hFItr < Constants.MACRO_BLOCK_SIZE; hFItr++) {
+				for (int wFItr = 0; wFItr < Constants.MACRO_BLOCK_SIZE; wFItr++) {
+					long pixDiff = Math
+							.abs(currentFrameBlock[hFItr][wFItr]
+									- prevFramePixels[hFItr + blockIndexHeight][wFItr + blockIndexWidth]);
+					initialSum += pixDiff;
+				}
+			}
+			if (initialSum == 0) {
+				finalMotionValue += 0;
+				continue;
+			}
+			
 			long currentBlockMinDiff = Long.MAX_VALUE;
 			int upVal = blockIndexHeight - Constants.SEARCH_WINDOW_SIZE;
 			int downVal = blockIndexHeight + Constants.SEARCH_WINDOW_SIZE;

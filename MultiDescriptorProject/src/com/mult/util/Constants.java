@@ -21,7 +21,7 @@ public class Constants {
 	public static final double AUDIO_WEIGHT = 0.5;
 	public static final double COLOR_WEIGHT = 0.3;
 	
-	public static final int SEARCH_WINDOW_SIZE = 60;
+	public static final int SEARCH_WINDOW_SIZE = 10;
 	
 	public static final String SERIALIZED_FILE_PATH = "C:" + FILE_PATH_SEPARATOR + "MultimediaData" +  FILE_PATH_SEPARATOR + "Database" + FILE_PATH_SEPARATOR;
 	
