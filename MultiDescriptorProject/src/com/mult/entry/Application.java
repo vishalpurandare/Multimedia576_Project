@@ -38,7 +38,7 @@ import com.mult.util.Utilities;
 public class Application {
 
 	//false if you are create database, true if you are calculate descriptors for test videos and compare against database
-	public static boolean ifTestMode = true;
+	public static boolean ifTestMode = false;
 	
 	/**
 	 * Application Entry
