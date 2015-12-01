@@ -102,7 +102,6 @@ public class Utilities {
 	 */
 	public static int getDescriptorDifference(int[] desc1, int[] desc2) {
 		
-		int meanErrorValue = 0;
 		int descValue1Add = 0;
 		int descValue2Add = 0;
 		int descValue1 = 0;
@@ -307,12 +306,11 @@ public class Utilities {
 	}
 	
 
-	public static void createUIBestBean(DifferenceBean bestBean, JPanel barCodePanel, JFrame frameMain) throws ClassNotFoundException, IOException {
-		DescriptorBean bestObj = (DescriptorBean) deSerializeObject(bestBean.getName(), false);
+	public static void createUIBestBean(String fileName, JPanel barCodePanel, JPanel mainPanel, JFrame frameMain) throws ClassNotFoundException, IOException {
+		DescriptorBean bestObj = (DescriptorBean) deSerializeObject(fileName, false);
 		
 		List<int[]> descList = bestObj.getDescriptorsList();
-		
-		JPanel mainPanel = new JPanel();
+		mainPanel.removeAll();
 		mainPanel.setLayout(new GridLayout(0, 1));
 		BufferedImage vDescImage = Utilities.createDescriptorImage(descList.get(0));
 		JPanel panel1 = new JPanel();
@@ -341,7 +339,7 @@ public class Utilities {
         title3.setTitleFont( titleFont.deriveFont(Font.BOLD) );
         panel3.setBorder(title3);
         
-	    TitledBorder titleMain = BorderFactory.createTitledBorder(lowerEtched, "Descriptors of best Matched file");
+	    TitledBorder titleMain = BorderFactory.createTitledBorder(lowerEtched, fileName);
 	    titleMain.setTitleFont( titleFont.deriveFont(Font.BOLD) );
 	    mainPanel.setBorder(titleMain);
 	    

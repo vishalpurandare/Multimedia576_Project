@@ -1,10 +1,13 @@
 package com.mult.entry;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -97,8 +100,8 @@ public class Application {
 					File[] directoryListing = dirVideo.listFiles();
 					
 					//Taking first 2 test files, which are for same file, audio and video files
-					File testFileVid = directoryListing[0];
-					File testFileAud = directoryListing[1];
+					File testFileVid = directoryListing[4];
+					File testFileAud = directoryListing[5];
 					
 					// display frame (current and previous) test - START
 					BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH,
@@ -193,17 +196,63 @@ public class Application {
 					
 					List<DifferenceBean> resultList = Utilities.bestMatchDecriptorToDb(descriptorObj);
 					
+					JPanel mainPanel = new JPanel();
+					
 					//Display result list in the file
 					for (Iterator<DifferenceBean> iterator = resultList.iterator(); iterator.hasNext();) {
 						DifferenceBean differenceBean = (DifferenceBean) iterator.next();
 						JLabel compLabel = new JLabel(String.valueOf(0));
 						compLabel.setText(differenceBean.getName());
+						
+						compLabel.addMouseListener(new MouseListener() {
+							
+							@Override
+							public void mouseReleased(MouseEvent e) {
+								// TODO Auto-generated method stub
+								
+							}
+							
+							@Override
+							public void mousePressed(MouseEvent e) {
+								// TODO Auto-generated method stub
+								
+							}
+							
+							@Override
+							public void mouseExited(MouseEvent e) {
+								// TODO Auto-generated method stub
+								
+							}
+							
+							@Override
+							public void mouseEntered(MouseEvent e) {
+								// TODO Auto-generated method stub
+								compLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+							}
+							
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								// TODO Auto-generated method stub
+								barCodePanel.remove(mainPanel);
+								//JPanel mainPanel = new JPanel();
+								try {
+									Utilities.createUIBestBean(differenceBean.getName(), barCodePanel, mainPanel, frameMain);
+								} catch (ClassNotFoundException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
 						matchedPanel.add(compLabel);
+						
 						SwingUtilities.updateComponentTreeUI(frameMain);
 					}
 					
 					DifferenceBean bestBean = resultList.get(0);
-					Utilities.createUIBestBean(bestBean, barCodePanel, frameMain);
+					Utilities.createUIBestBean(bestBean.getName(), barCodePanel, mainPanel, frameMain);
 					
 					Utilities.serializeObject(descriptorObj, testFileVid.getName(), true);
 					Utilities.trace("########################################################");

@@ -51,12 +51,12 @@ public class VideoDescriptorEntry {
 	public static void main(String[] args) {
 
 		//File dirVideo = new File("C:\\Data\\imp-Data\\USC Data\\Courses-Fall 2015\\CSCI576-Multimedia System Design\\Final-Project\\Testing Fall 2015");
-		File dirVideo = new File(Constants.TEST_PATH_PC);
+		File dirVideo = new File(Constants.VIDEO_PATH_PC);
 		File[] directoryListing = dirVideo.listFiles();
 
 		// currently only working on one video file, later do it for all files
 		// in directoryListings
-		File currFile = directoryListing[2];
+		File currFile = directoryListing[11];
 		System.out.println(currFile);
 
 		MotionDescriptor mObj = new MotionDescriptor();
@@ -70,9 +70,8 @@ public class VideoDescriptorEntry {
 			// Test Image Display code - can be removed later
 			Utilities
 					.trace("Number of Frames processed: " + videoFrames.size());
-
-			/*
-			 * BufferedImage img = new BufferedImage(Constants.WIDTH,
+			
+			BufferedImage img = new BufferedImage(Constants.WIDTH,
 					Constants.HEIGHT, BufferedImage.TYPE_INT_RGB);
 
 			JPanel panel = new JPanel();
@@ -103,7 +102,6 @@ public class VideoDescriptorEntry {
 			// test-code ends
 			
 			frame.dispose();
-			*/
 			
 			// Actual Motion Vector Descriptor Code
 			long[] motionVectorLongArray = new long[150];
