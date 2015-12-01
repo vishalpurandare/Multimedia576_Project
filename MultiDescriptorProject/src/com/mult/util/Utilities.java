@@ -102,21 +102,36 @@ public class Utilities {
 	 */
 	public static int getDescriptorDifference(int[] desc1, int[] desc2) {
 		
+		int meanErrorValue = 0;
+		int descValue1Add = 0;
+		int descValue2Add = 0;
 		int descValue1 = 0;
 		int descValue2 = 0;
-		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES - 1 ; descItr1++) {
+		for (int descItr1 = 0; descItr1 < Constants.NO_OF_FRAMES; descItr1++) {
 		/*	int diffVal = Math.abs(desc1[descItr1] - desc2[descItr1]);
 			int squareVal = diffVal * diffVal;
 			meanErrorValue += squareVal;
 	
 		*/
-			
-			descValue1 += Math.abs(desc1[descItr1+1] - desc1[descItr1]);
+			if(descItr1 != Constants.NO_OF_FRAMES - 1)
+			descValue1 = Math.abs(desc1[descItr1] - desc1[descItr1 + 1]);
+			descValue1Add += desc1[descItr1];
 		}
 		
-		for (int descItr2 = 0; descItr2 < Constants.NO_OF_FRAMES - 1; descItr2++) {
-			descValue2 += Math.abs(desc2[descItr2+1] - desc2[descItr2]);
-		}
+		for (int descItr2 = 0; descItr2 < Constants.NO_OF_FRAMES; descItr2++) {
+			
+			if(descItr2 != Constants.NO_OF_FRAMES - 1)
+				descValue2 = Math.abs(desc2[descItr2] - desc2[descItr2 + 1]);	
+			
+		descValue2Add += desc2[descItr2];
+	}
+		
+		descValue1 = descValue1 * (descValue1Add/Constants.NO_OF_FRAMES);
+		
+		descValue2 = descValue2 * (descValue2Add / Constants.NO_OF_FRAMES);
+		
+		System.out.println("Desc1 Value " + descValue1);
+		System.out.println("Desc2 Value " + descValue2);
 
 		return Math.abs(descValue1 - descValue2); 
 		//return (int) (meanErrorValue / Constants.NO_OF_FRAMES);
@@ -163,7 +178,6 @@ public class Utilities {
 		}
 		*/		
 	}
-	
 	public static List<DifferenceBean> bestMatchDecriptorToDb(DescriptorBean descriptorObj) throws ClassNotFoundException, IOException {
 		File serializedDir = new File(Constants.SERIALIZED_FILE_PATH);
 		File[] serFiles = serializedDir.listFiles();
