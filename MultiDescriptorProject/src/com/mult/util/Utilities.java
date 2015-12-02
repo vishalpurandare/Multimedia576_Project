@@ -80,6 +80,18 @@ public class Utilities {
 		
 		FileInputStream fileIn = null;
 		
+		File file = null;
+		
+		if (ifTestData) {
+			file = new File(Constants.SERIALIZED_FILE_PATH_TEST + fileName);
+		} else {
+			file = new File(Constants.SERIALIZED_FILE_PATH + fileName);
+		}
+		
+		if(!file.exists()) { 
+		   return null;
+		}
+		
 		if (ifTestData) {
 			fileIn = new FileInputStream(Constants.SERIALIZED_FILE_PATH_TEST + fileName);
 		} else {

@@ -255,13 +255,26 @@ public class VideoDescriptorEntry {
 	 * @return
 	 * @throws InterruptedException 
 	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
-	public int[] getVideoMotionVectorDescriptor(DescriptorBean descObj, File currFile, BufferedImage prevFrameImg, BufferedImage currFrameImg,JLabel motionValueComp,  JPanel barCodePanel, JFrame frameMain) throws IOException, InterruptedException {
+	public int[] getVideoMotionVectorDescriptor(DescriptorBean descObj, File currFile, BufferedImage prevFrameImg, BufferedImage currFrameImg,JLabel motionValueComp,  JPanel barCodePanel, JFrame frameMain, boolean ifTest) throws IOException, InterruptedException, ClassNotFoundException {
 		
 		long startTime = System.currentTimeMillis();
 		
 		Utilities.trace("getVideoMotionVectorDescriptor START");
 		Utilities.trace("Processing File: START " + currFile.getName() );
+		
+		boolean ifPresentInCache = false;
+		int[] motionDescSerArr = null;
+		if (ifTest) {
+			//Check if the file is already serialized, then only take from file
+			DescriptorBean descriptorObj = (DescriptorBean) Utilities.deSerializeObject(currFile.getName()+".ser", true);
+			if (descriptorObj != null) {
+				ifPresentInCache = true;
+				List<int[]> descList = descriptorObj.getDescriptorsList();
+				motionDescSerArr = descList.get(0);// get motion descriptor array
+			} 
+		}
 		
 		MotionDescriptor mObj = new MotionDescriptor();
 		
@@ -278,8 +291,15 @@ public class VideoDescriptorEntry {
 		long minMotionVector = Long.MAX_VALUE;
 
 		for (int frameItr = 1; frameItr < videoFrames.size(); frameItr++) {
-
-			long fMotionValue = getFrameMotionValue(frameItr);
+			
+			long fMotionValue = 0;
+			
+			if (!ifPresentInCache) { //if not present in cache, calculate
+				fMotionValue = getFrameMotionValue(frameItr);
+			} else {
+				fMotionValue = motionDescSerArr[frameItr];
+				Thread.sleep(100);
+			}
 			
 			if (maxMotionVector < fMotionValue) {
 				maxMotionVector = fMotionValue;

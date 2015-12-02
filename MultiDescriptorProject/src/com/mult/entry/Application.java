@@ -73,7 +73,7 @@ public class Application {
 						File currFileAud = directoryListingAud[fileItr];
 						DescriptorBean descriptorObj = new DescriptorBean();
 						//get video motion vector descriptor
-						int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(descriptorObj, currFileVid, null, null, null, null, null);
+						int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(descriptorObj, currFileVid, null, null, null, null, null, false);
 						//get audio intensity descriptor
 						int[] audioDescriptorArray = audObj.getAudioDescriptor(currFileAud, null, null);
 						//get video color intensity descriptor (New one)
@@ -100,8 +100,8 @@ public class Application {
 					File[] directoryListing = dirVideo.listFiles();
 					
 					//Taking first 2 test files, which are for same file, audio and video files
-					File testFileVid = directoryListing[2];
-					File testFileAud = directoryListing[3];
+					File testFileVid = directoryListing[4];
+					File testFileAud = directoryListing[5];
 					
 					// display frame (current and previous) test - START
 					BufferedImage prevFrameImg = new BufferedImage(Constants.WIDTH,
@@ -178,7 +178,7 @@ public class Application {
 					// display frame (current and previous) test - END
 					DescriptorBean descriptorObj = new DescriptorBean();
 					//get video motion vector descriptor
-					int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(descriptorObj,testFileVid, prevFrameImg, currFrameImg, comp3, barCodePanel, frameMain);
+					int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(descriptorObj,testFileVid, prevFrameImg, currFrameImg, comp3, barCodePanel, frameMain, true);
 					//get audio intensity descriptor
 					int[] audioDescriptorArray = audObj.getAudioDescriptor(testFileAud, barCodePanel, frameMain);
 					//get video color intensity descriptor (New one)
