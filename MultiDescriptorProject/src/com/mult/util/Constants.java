@@ -17,9 +17,9 @@ public class Constants {
 	public static final int HEIGHT = 180;
 	public static final int MACRO_BLOCK_SIZE = 15;
 	
-	public static final double VIDEO_WEIGHT = 0.2;
-	public static final double AUDIO_WEIGHT = 0.5;
-	public static final double COLOR_WEIGHT = 0.3;
+	public static final double VIDEO_WEIGHT = 1;
+	public static final double AUDIO_WEIGHT = 1;
+	public static final double COLOR_WEIGHT = 1;
 	
 	public static final int SEARCH_WINDOW_SIZE = 60;
 	

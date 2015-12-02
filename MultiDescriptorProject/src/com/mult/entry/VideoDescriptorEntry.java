@@ -256,7 +256,7 @@ public class VideoDescriptorEntry {
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	public int[] getVideoMotionVectorDescriptor(File currFile, BufferedImage prevFrameImg, BufferedImage currFrameImg,JLabel motionValueComp,  JPanel barCodePanel, JFrame frameMain) throws IOException, InterruptedException {
+	public int[] getVideoMotionVectorDescriptor(DescriptorBean descObj, File currFile, BufferedImage prevFrameImg, BufferedImage currFrameImg,JLabel motionValueComp,  JPanel barCodePanel, JFrame frameMain) throws IOException, InterruptedException {
 		
 		long startTime = System.currentTimeMillis();
 		
@@ -320,6 +320,8 @@ public class VideoDescriptorEntry {
 			
 		}
 
+		descObj.setMaxMotion(maxMotionVector);
+		descObj.setMinMotion(minMotionVector);
 		//Normalize values to 0-255
 		int[] motionVectorDescriptorArray = Utilities.getNormalizedDescriptorArray(motionVectorLongArray, maxMotionVector, minMotionVector, 1);
 		

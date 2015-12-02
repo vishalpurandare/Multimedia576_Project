@@ -38,7 +38,7 @@ import com.mult.util.Utilities;
 public class Application {
 
 	//false if you are create database, true if you are calculate descriptors for test videos and compare against database
-	public static boolean ifTestMode = false;
+	public static boolean ifTestMode = true;
 	
 	/**
 	 * Application Entry
@@ -71,15 +71,15 @@ public class Application {
 					for (int fileItr = 0; fileItr < directoryListingVid.length; fileItr++) {
 						File currFileVid = directoryListingVid[fileItr];
 						File currFileAud = directoryListingAud[fileItr];
-						
+						DescriptorBean descriptorObj = new DescriptorBean();
 						//get video motion vector descriptor
-						int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(currFileVid, null, null, null, null, null);
+						int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(descriptorObj, currFileVid, null, null, null, null, null);
 						//get audio intensity descriptor
 						int[] audioDescriptorArray = audObj.getAudioDescriptor(currFileAud, null, null);
 						//get video color intensity descriptor (New one)
 						int[] colorIntensityDescriptorArray = colorObj.getColorDescriptor(currFileVid, null, null);
 						
-						DescriptorBean descriptorObj = new DescriptorBean();
+						
 						List<int[]> descriptorsList = new ArrayList<int[]>();
 						
 						descriptorsList.add(motionVectorDescriptorArray);
@@ -176,15 +176,15 @@ public class Application {
 					frameMain.setVisible(true);
 					frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 					// display frame (current and previous) test - END
-					
+					DescriptorBean descriptorObj = new DescriptorBean();
 					//get video motion vector descriptor
-					int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(testFileVid, prevFrameImg, currFrameImg, comp3, barCodePanel, frameMain);
+					int[] motionVectorDescriptorArray = vidEntryObj.getVideoMotionVectorDescriptor(descriptorObj,testFileVid, prevFrameImg, currFrameImg, comp3, barCodePanel, frameMain);
 					//get audio intensity descriptor
 					int[] audioDescriptorArray = audObj.getAudioDescriptor(testFileAud, barCodePanel, frameMain);
 					//get video color intensity descriptor (New one)
 					int[] colorIntensityDescriptorArray = colorObj.getColorDescriptor(testFileVid, barCodePanel, frameMain);
 					
-					DescriptorBean descriptorObj = new DescriptorBean();
+					
 					List<int[]> descriptorsList = new ArrayList<int[]>();
 					
 					descriptorsList.add(motionVectorDescriptorArray);

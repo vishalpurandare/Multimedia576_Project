@@ -12,6 +12,23 @@ public class DescriptorBean implements Serializable {
 	
 	private String fileName;
 	//list, 0- videoDescriptrArray, 1-audioDescriptorArray, 2- colorDescriptorArray
+	private double maxMotion;
+	private double minMotion;
+	
+	public double getMaxMotion() {
+		return maxMotion;
+	}
+	public void setMaxMotion(double maxMotion) {
+		this.maxMotion = maxMotion;
+	}
+	public double getMinMotion() {
+		return minMotion;
+	}
+	public void setMinMotion(double minMotion) {
+		this.minMotion = minMotion;
+	}
+	
+	
 	private List<int[]> descriptorsList;
 	
 	public String getFileName() {

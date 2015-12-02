@@ -244,7 +244,14 @@ public class Utilities {
 			int currAudioDiff = getDescriptorDifference(audioDescriptorTest, audioDescirptor);
 			int currColorDiff = getDescriptorDifference(colorDescriptorTest, colorDescriptor);
 			
-			double currDiff = (Constants.VIDEO_WEIGHT * currMotionDiff) + (Constants.AUDIO_WEIGHT* currAudioDiff) + (Constants.COLOR_WEIGHT *  currColorDiff);
+			//double maxMotionDiff = Math.abs(currBeanObj.getMaxMotion() - descriptorObj.getMaxMotion());
+			//double minMotionDiff = Math.abs(currBeanObj.getMinMotion() - descriptorObj.getMinMotion());
+			
+			double currDiff = (Constants.VIDEO_WEIGHT * currMotionDiff) + 
+					(Constants.AUDIO_WEIGHT* currAudioDiff) + 
+					(Constants.COLOR_WEIGHT *  currColorDiff);
+					//maxMotionDiff + minMotionDiff;
+			
 			DifferenceBean diffBean = new DifferenceBean();
 			diffBean.setName( currSerFile.getName());
 			diffBean.setValue(currDiff);
@@ -284,7 +291,7 @@ public class Utilities {
 	
 	public static void main(String[] arg) {
 		try {
-			String testFileName = "sports_test.rgb.ser"; // best matched to sports3.v576.rgb.ser, run again for ranks
+			String testFileName = "drama_test.rgb.ser"; // best matched to sports3.v576.rgb.ser, run again for ranks
 			//String testFileName = "interview_test.rgb.ser"; // best matched to interview3.v576.rgb.ser, run again for ranks
 			//String testFileName = "drama_test.rgb.ser"; // best matched to commercial1.v576.rgb.ser, run again for ranks
 			
